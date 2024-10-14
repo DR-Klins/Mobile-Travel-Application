@@ -1,0 +1,9 @@
+node_modules/
+android/app/build/
+ios/build/
+.env
+*.log
+tmp/
+.expo/
+.expo-shared/
+coverage/
