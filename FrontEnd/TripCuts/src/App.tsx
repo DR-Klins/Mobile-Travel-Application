@@ -14,6 +14,7 @@ import CreateTrip from './screens/CreateTrip'; // Import the Profile component
 import Bag from './screens/Bag';
 import CreateTripDetails from './screens/CreateTripDetails'; // Import the CreateTripDetails component
 import {AuthProvider, useAuth} from './screens/context/AuthContext'; // Import the AuthContext component
+import MediaUpload from './screens/MediaUpload';
 import {RouteProp} from '@react-navigation/native';
 
 // Define types for navigation
@@ -26,6 +27,7 @@ export type RootStackParamList = {
   CreateTrip: undefined;
   Bag: undefined;
   CreateTripDetails: undefined;
+  MediaUpload: undefined;
 };
 
 // Define types for the HomeScreen navigation prop
@@ -74,6 +76,11 @@ const AuthenticatedStack = () => (
     <Stack.Screen
       name="CreateTripDetails"
       component={CreateTripDetails}
+      options={{headerShown: false}} // Hide the top navigation bar
+    />
+    <Stack.Screen
+      name="MediaUpload"
+      component={MediaUpload}
       options={{headerShown: false}} // Hide the top navigation bar
     />
   </Stack.Navigator>

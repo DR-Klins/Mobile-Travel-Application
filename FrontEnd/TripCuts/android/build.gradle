@@ -6,6 +6,8 @@ buildscript {
         targetSdkVersion = 34
         ndkVersion = "26.1.10909125"
         kotlinVersion = "1.9.24"
+        RNMapboxMapsImpl = "mapbox"
+        googlePlayServicesVersion = "21.0.1"
     }
     repositories {
         google()
@@ -15,6 +17,23 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = 'mapbox'
+                password = "sk.eyJ1Ijoia2xpbnNtYW5uIiwiYSI6ImNtMjlwdHlmMjA4NXkybXNmYjJ2dDd0cTgifQ.XF4U81v8TMFZNMKCZWCLgA"
+            }
+        }
     }
 }
 

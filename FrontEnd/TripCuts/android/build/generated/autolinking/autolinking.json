@@ -53,6 +53,87 @@
         }
       }
     },
+    "@rnmapbox/maps": {
+      "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@rnmapbox\\maps",
+      "name": "@rnmapbox/maps",
+      "platforms": {
+        "ios": {
+          "podspecPath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@rnmapbox\\maps\\rnmapbox-maps.podspec",
+          "version": "10.1.31",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@rnmapbox\\maps\\android",
+          "packageImportPath": "import com.rnmapbox.rnmbx.RNMBXPackage;",
+          "packageInstance": "new RNMBXPackage()",
+          "buildTypes": [],
+          "libraryName": "rnmapbox_maps_specs",
+          "componentDescriptors": [
+            "RNMBXAtmosphereComponentDescriptor",
+            "RNMBXBackgroundLayerComponentDescriptor",
+            "RNMBXCalloutComponentDescriptor",
+            "RNMBXCameraComponentDescriptor",
+            "RNMBXCircleLayerComponentDescriptor",
+            "RNMBXCustomLocationProviderComponentDescriptor",
+            "RNMBXFillExtrusionLayerComponentDescriptor",
+            "RNMBXFillLayerComponentDescriptor",
+            "RNMBXHeatmapLayerComponentDescriptor",
+            "RNMBXImageComponentDescriptor",
+            "RNMBXImagesComponentDescriptor",
+            "RNMBXImageSourceComponentDescriptor",
+            "RNMBXLightComponentDescriptor",
+            "RNMBXLineLayerComponentDescriptor",
+            "RNMBXMapViewComponentDescriptor",
+            "RNMBXMarkerViewContentComponentDescriptor",
+            "RNMBXMarkerViewComponentDescriptor",
+            "RNMBXModelLayerComponentDescriptor",
+            "RNMBXModelsComponentDescriptor",
+            "RNMBXNativeUserLocationComponentDescriptor",
+            "RNMBXPointAnnotationComponentDescriptor",
+            "RNMBXRasterDemSourceComponentDescriptor",
+            "RNMBXRasterLayerComponentDescriptor",
+            "RNMBXRasterSourceComponentDescriptor",
+            "RNMBXShapeSourceComponentDescriptor",
+            "RNMBXSkyLayerComponentDescriptor",
+            "RNMBXStyleImportComponentDescriptor",
+            "RNMBXSymbolLayerComponentDescriptor",
+            "RNMBXTerrainComponentDescriptor",
+            "RNMBXVectorSourceComponentDescriptor",
+            "RNMBXViewportComponentDescriptor"
+          ],
+          "cmakeListsPath": "D:/Finally/Mobile Travel Application/FrontEnd/TripCuts/node_modules/@rnmapbox/maps/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-geolocation-service": {
+      "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-geolocation-service",
+      "name": "react-native-geolocation-service",
+      "platforms": {
+        "ios": {
+          "podspecPath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-geolocation-service\\react-native-geolocation-service.podspec",
+          "version": "5.3.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-geolocation-service\\android",
+          "packageImportPath": "import com.agontuk.RNFusedLocation.RNFusedLocationPackage;",
+          "packageInstance": "new RNFusedLocationPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "D:/Finally/Mobile Travel Application/FrontEnd/TripCuts/node_modules/react-native-geolocation-service/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-gesture-handler": {
       "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-gesture-handler",
       "name": "react-native-gesture-handler",
@@ -74,6 +155,31 @@
             "RNGestureHandlerRootViewComponentDescriptor"
           ],
           "cmakeListsPath": "D:/Finally/Mobile Travel Application/FrontEnd/TripCuts/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-permissions": {
+      "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-permissions",
+      "name": "react-native-permissions",
+      "platforms": {
+        "ios": {
+          "podspecPath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-permissions\\RNPermissions.podspec",
+          "version": "5.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-permissions\\android",
+          "packageImportPath": "import com.zoontek.rnpermissions.RNPermissionsPackage;",
+          "packageInstance": "new RNPermissionsPackage()",
+          "buildTypes": [],
+          "libraryName": "RNPermissionsSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "D:/Finally/Mobile Travel Application/FrontEnd/TripCuts/node_modules/react-native-permissions/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
