@@ -3,16 +3,19 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlane, faSuitcase, faMap, faMountain } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native';
-import {useAuth} from './context/AuthContext';
+import {useAuth} from '../context/AuthContext';
 
 const TravelCardScreen = () => {
   const [trips, setTrips] = useState([]);
 
-  const userId = '66d8a520c2038e168cb9280d'; // Your user ID
   const navigation = useNavigation();
 
+  const {getUserID} = useAuth();
+
   useEffect(() => {
+    
     const fetchTrips = async () => {
+      const userId = await getUserID();
       try {
         const response = await fetch('http://192.168.100.38:4000/api/v1/getTrips', {
           method: 'POST',

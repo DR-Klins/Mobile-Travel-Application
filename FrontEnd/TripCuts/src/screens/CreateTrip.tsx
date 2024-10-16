@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import * as Yup from 'yup';
-import {Formik} from 'formik';
+import {Formik, FormikErrors, FormikTouched} from 'formik'; // Import Formik types
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParamList} from '../App';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
@@ -17,24 +17,36 @@ import {useAuth} from './context/AuthContext';
 import axios from 'axios';
 
 // Define form values type
+interface Destination {
+  destinationName: string;
+  visited: boolean;
+  time: string | null; // New field for time
+}
+
 interface FormValues {
-  tripName: string; // New field for trip name
+  tripName: string;
   tripType: string;
   budget: number;
-  destinations: string[];
+  destinations: Destination[]; // Updated to include destination objects
 }
 
 // Validation schema
 const validationSchema = Yup.object().shape({
-  tripName: Yup.string().required('Trip name is required'), // New validation
+  tripName: Yup.string().required('Trip name is required'),
   tripType: Yup.string().required('Type of trip is required'),
   budget: Yup.number()
     .typeError('Budget must be a number')
     .required('Budget is required')
     .positive('Budget must be a positive number'),
   destinations: Yup.array()
-    .of(Yup.string().min(1, 'Each destination must not be empty')) // Ensure non-empty strings
-    .min(2, 'Add at least one source and destination'), // Minimum length for the array
+    .of(
+      Yup.object().shape({
+        destinationName: Yup.string().required('Destination name is required'),
+        visited: Yup.boolean(),
+        time: Yup.string().nullable(), // Validate time as a string, nullable
+      }),
+    )
+    .min(2, 'Add at least one source and destination'),
 });
 
 const CreateTrip = () => {
@@ -43,7 +55,7 @@ const CreateTrip = () => {
   const {getUserID} = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [source, setSource] = useState<string>(''); // For adding source/destination
-  const [isSourceAdded, setIsSourceAdded] = useState<boolean>(false); // To track if source is added
+  const [time, setTime] = useState<string | null>(null); // For the time input
 
   const handleSearch = async (text: string) => {
     setQuery(text);
@@ -55,7 +67,6 @@ const CreateTrip = () => {
           )}.json?access_token=pk.eyJ1Ijoia2xpbnNtYW5uIiwiYSI6ImNtMjN3bGhmejBhanEycXFzY3FmcHoyem4ifQ.wTTs41xza38fGRIEsrdp7g&autocomplete=true&limit=5`,
         );
 
-        // Explicitly define the type for the features array
         const formattedSuggestions = response.data.features.map(
           (feature: {place_name: string}) => {
             const parts = feature.place_name.split(',');
@@ -75,7 +86,6 @@ const CreateTrip = () => {
 
   const handleSubmit = async (values: FormValues) => {
     const user_id = await getUserID();
-    console.log(typeof values.budget);
     console.log(values); // Log the final values
 
     try {
@@ -116,10 +126,10 @@ const CreateTrip = () => {
         <Formik
           initialValues={
             {
-              tripName: '', // Initial value for trip name
+              tripName: '',
               tripType: '',
               budget: 0,
-              destinations: [],
+              destinations: [], // Updated to handle destination objects
             } as FormValues
           }
           validationSchema={validationSchema}
@@ -131,6 +141,7 @@ const CreateTrip = () => {
             values,
             errors,
             touched,
+            setFieldTouched,
           }) => (
             <>
               {/* Trip Name Input */}
@@ -175,19 +186,15 @@ const CreateTrip = () => {
               )}
 
               {/* Source/Destination Input */}
-              <Text style={styles.label}>
-                {isSourceAdded ? 'Destination' : 'Source'}:
-              </Text>
+              <Text style={styles.label}>Destination:</Text>
               <View style={styles.destinationContainer}>
                 <TextInput
-                  style={styles.input} // Restore original size of the text box
-                  placeholder={`Enter ${
-                    isSourceAdded ? 'destination' : 'source'
-                  }`}
+                  style={styles.input}
+                  placeholder="Enter destination"
                   value={source}
                   onChangeText={text => {
                     setSource(text);
-                    handleSearch(text); // Fetch suggestions as the user types
+                    handleSearch(text);
                   }}
                 />
               </View>
@@ -196,9 +203,14 @@ const CreateTrip = () => {
                   title="Add"
                   onPress={() => {
                     if (source.trim()) {
-                      values.destinations.push(source); // Push to Formik's destinations
+                      // Push a new destination object
+                      values.destinations.push({
+                        destinationName: source,
+                        visited: false,
+                        time: time || null, // Use null if time is not provided
+                      });
                       setSource(''); // Clear the input
-                      setIsSourceAdded(true); // Mark that source is added
+                      setTime(null); // Reset the time input
                     }
                   }}
                 />
@@ -221,14 +233,33 @@ const CreateTrip = () => {
               {values.destinations.map((dest, index) => (
                 <View key={index} style={styles.card}>
                   <Text style={styles.cardText}>
-                    {index === 0 ? 'Source' : `Destination ${index}`} : {dest}
+                    {index === 0 ? 'Source' : `Destination ${index}`} :{' '}
+                    {dest.destinationName}
+                    {dest.time && ` (Time: ${dest.time})`}
                   </Text>
+                  {/* Show individual error for this destination */}
+                  {touched.destinations &&
+                    errors.destinations &&
+                    Array.isArray(errors.destinations) &&
+                    errors.destinations[index] && (
+                      <Text style={styles.errorText}>
+                        {
+                          (
+                            errors.destinations[
+                              index
+                            ] as FormikErrors<Destination>
+                          ).destinationName
+                        }
+                      </Text>
+                    )}
                 </View>
               ))}
 
               {/* Show error for destinations if touched */}
-              {touched.destinations && errors.destinations && (
-                <Text style={styles.errorText}>{errors.destinations}</Text>
+              {touched.destinations && Array.isArray(errors.destinations) && (
+                <Text style={styles.errorText}>
+                  {errors.destinations.join(', ')}
+                </Text>
               )}
 
               {/* Submit Button */}
@@ -239,10 +270,12 @@ const CreateTrip = () => {
                     handleSubmit();
                     if (values.destinations.length < 2) {
                       // Ensure Formik touches the destinations field to show error
-                      touched.destinations = true; // Mark destinations as touched
+                      values.destinations.forEach((_, index) =>
+                        setFieldTouched(`destinations[${index}]`, true),
+                      );
                     }
                   }}>
-                  <Text style={styles.createButtonText}>Create</Text>
+                  <Text style={styles.createButtonText}>Create Trip</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -256,14 +289,16 @@ const CreateTrip = () => {
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
   },
   container: {
     padding: 20,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '600',
-    marginBottom: 15,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   label: {
     marginBottom: 5,
@@ -296,14 +331,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     zIndex: 1000,
     marginTop: 5,
-    width: '100%', // Ensure it takes full width of the input
+    width: '100%',
   },
   suggestionText: {
     padding: 10,
     fontSize: 16,
-  },
-  suggestionTextHovered: {
-    backgroundColor: '#f0f0f0',
   },
   card: {
     backgroundColor: '#e0e0e0',
