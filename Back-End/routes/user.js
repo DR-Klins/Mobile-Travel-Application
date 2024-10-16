@@ -18,6 +18,7 @@ const {
   createTrip,
   getTrips,
   getTripDetails,
+  updateVisited,
 } = require("../controllers/userController");
 const { isLoggedIn, customRole } = require("../middlewares/user");
 
@@ -32,6 +33,7 @@ router.route("/userdashboard/update").put(isLoggedIn, updateUserDetails);
 router.route("/createTrip").post(createTrip);
 router.route("/getTrips").post(getTrips);
 router.route("/getTripDetails").post(getTripDetails);
+router.route("/updateVisited").post(updateVisited);
 
 
 

@@ -371,9 +371,8 @@ exports.getTrips = BigPromise(async (req, res, next) => {
   }
 
   try {
-    // Fetch trips for the authenticated user
-    // Assuming req.user._id contains the authenticated user's ID
-    const trips = await Trip.find({ user: user_id }); 
+    // Fetch trips for the authenticated user by the correct field name 'user_id'
+    const trips = await Trip.find({ user_id: user_id });
 
     // Check if the user has trips
     if (!trips.length) {
@@ -394,6 +393,7 @@ exports.getTrips = BigPromise(async (req, res, next) => {
     });
   }
 });
+
 
 exports.getTripDetails = BigPromise(async (req, res, next) => {
   // Log the request params for debugging
@@ -430,3 +430,48 @@ exports.getTripDetails = BigPromise(async (req, res, next) => {
     });
   }
 });
+
+
+exports.updateVisited = BigPromise(async (req, res, next) => {
+  console.log(req.body);
+
+  const { tripId, destinationName } = req.body;
+
+  if (!tripId || !destinationName) {
+    return next(new CustomError("Trip ID and Destination Name are required", 400));
+  }
+
+  try {
+    // Update all occurrences of the destination with the same name
+    const updatedTrip = await Trip.findOneAndUpdate(
+      { _id: tripId, 'destinations.destinationName': destinationName },
+      {
+        $set: { 'destinations.$[elem].visited': true },
+      },
+      {
+        arrayFilters: [{ 'elem.destinationName': destinationName }],
+        new: true, // Return the updated document after the operation
+        multi: true, // Ensure all matching documents are updated
+      }
+    );
+
+    if (!updatedTrip) {
+      return res.status(404).json({
+        success: false,
+        message: "Trip or destination not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "All matching destinations marked as visited.",
+      updatedTrip,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+

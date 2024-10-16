@@ -18,10 +18,22 @@ const tripSchema = new mongoose.Schema({
       type: String,
       required: [true, "Please provide your expected budget"],
     },
-    destinations: [{ 
-        type: String, 
-        required: [true, "Please provide atleast onesource and destination"],
-      }],
+    destinations: [
+      {
+        destinationName: {
+          type: String,
+          required: [true, "Please provide a destination name"]
+        },
+        visited: {
+          type: Boolean,
+          default: false
+        },
+        time: {
+          type: Date,
+          default: null // Default can be null if left blank
+        }
+      }
+    ],
     user_id: { // Reference to the User model
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
