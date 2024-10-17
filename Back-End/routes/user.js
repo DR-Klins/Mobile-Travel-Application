@@ -19,6 +19,7 @@ const {
   getTrips,
   getTripDetails,
   updateVisited,
+  saveMedia
 } = require("../controllers/userController");
 const { isLoggedIn, customRole } = require("../middlewares/user");
 
@@ -34,7 +35,7 @@ router.route("/createTrip").post(createTrip);
 router.route("/getTrips").post(getTrips);
 router.route("/getTripDetails").post(getTripDetails);
 router.route("/updateVisited").post(updateVisited);
-
+router.route("/saveMedia").post(saveMedia);
 
 
 //admin only routes

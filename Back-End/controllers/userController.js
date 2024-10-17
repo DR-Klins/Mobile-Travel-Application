@@ -475,3 +475,48 @@ exports.updateVisited = BigPromise(async (req, res, next) => {
   }
 });
 
+exports.saveMedia = BigPromise(async (req, res, next) => {
+  const { tripId, destinationName, media } = req.body;
+
+  // Validate the incoming data
+  if (!tripId || !destinationName || !media) {
+    return next(new CustomError("Trip ID, Destination Name, and Media are required", 400));
+  }
+
+  try {
+    // Find the trip and push new media to the destination
+    const updatedTrip = await Trip.findOneAndUpdate(
+      { _id: tripId, 'destinations.destinationName': destinationName },
+      {
+        $push: {
+          'destinations.$[elem].media': { $each: media },
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.destinationName': destinationName }],
+        new: true, // Return the updated document
+      }
+    );
+
+    // If no trip or destination is found
+    if (!updatedTrip) {
+      return res.status(404).json({
+        success: false,
+        message: "Trip or destination not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Media saved successfully to the destination.",
+      updatedTrip,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: `Error saving media to database: ${error.message}`,
+    });
+  }
+});
+
+
