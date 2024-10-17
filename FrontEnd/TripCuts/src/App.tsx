@@ -27,7 +27,7 @@ export type RootStackParamList = {
   CreateTrip: undefined;
   Bag: undefined;
   CreateTripDetails: undefined;
-  MediaUpload: undefined;
+  MediaUpload: {tripId: string};
 };
 
 // Define types for the HomeScreen navigation prop

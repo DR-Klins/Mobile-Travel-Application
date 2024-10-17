@@ -102,7 +102,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
           // If all destinations are visited, navigate to MediaUpload
           // Navigate back two screens
           navigation.goBack(); // Go back once
-          navigation.navigate('MediaUpload');
+          navigation.navigate('MediaUpload', {tripId});
         } else {
           setLoading(false); // Allow rendering when not all destinations are visited
         }
@@ -193,7 +193,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
       Alert.alert('Finished', 'You have completed your trip checks.');
       // Navigate back two screens
       navigation.goBack(); // Go back once
-      navigation.navigate('MediaUpload');
+      navigation.navigate('MediaUpload', {tripId});
     } else {
       Alert.alert(
         'Incomplete',
