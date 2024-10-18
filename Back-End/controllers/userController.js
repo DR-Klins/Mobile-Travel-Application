@@ -1,5 +1,8 @@
 const User = require("../models/user");
-const Trip = require("../models/Trip")
+const Trip = require("../models/Trip");
+const Itinerary  = require("../models/createItinerary");
+const Cuts = require("../models/createCuts")
+const Vlog = require("../models/createVlog");
 const BigPromise = require("../middlewares/bigPromise");
 const CustomError = require("../utils/customError");
 const cookieToken = require("../utils/cookieToken");
@@ -520,3 +523,80 @@ exports.saveMedia = BigPromise(async (req, res, next) => {
 });
 
 
+exports.createItinerary = BigPromise(async (req, res, next) => {
+  console.log(req.body);
+
+  const { q1, q2, q3, q4, q5, q6, q7, q8, q9, tripId } = req.body;
+
+  try {
+    // Create a new itinerary in the database
+    const newItinerary = await Itinerary.create({ // Change this line
+      q1, q2, q3, q4, q5, q6, q7, q8, q9, tripId
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Itinerary Created",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: `Error creating Itinerary: ${error.message}`,
+    });
+  }
+});
+
+exports.createVlog = BigPromise(async (req, res, next) => {
+  const { public_id, url, format, asset_id, resource_type, tripId } = req.body;
+
+  try {
+      // Create a new vlog in the database
+      const newVlog = await Vlog.create({
+          public_id,
+          url,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+      });
+
+      return res.status(200).json({
+          success: true,
+          message: "Vlog Created",
+          data: newVlog, // Optionally return the created vlog
+      });
+  } catch (error) {
+      return res.status(500).json({
+          success: false,
+          message: `Error creating Vlog: ${error.message}`,
+      });
+  }
+});
+
+
+exports.createCuts = BigPromise(async (req, res, next) => {
+  const { public_id, url, format, asset_id, resource_type, tripId } = req.body;
+
+  try {
+      // Create a new vlog in the database
+      const newVlog = await Cuts.create({
+          public_id,
+          url,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+      });
+
+      return res.status(200).json({
+          success: true,
+          message: "Vlog Created",
+          data: newVlog, // Optionally return the created vlog
+      });
+  } catch (error) {
+      return res.status(500).json({
+          success: false,
+          message: `Error creating Vlog: ${error.message}`,
+      });
+  }
+});
