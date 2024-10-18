@@ -9,13 +9,15 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
+  Modal,
+  TextInput,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import axios from 'axios';
 import {RootStackParamList} from '../App';
 import {useAuth} from './context/AuthContext';
-import {CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '@env'; // Import your Cloudinary variables
+import {CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET} from '@env';
 
 interface Destination {
   destinationName: string;
@@ -35,6 +37,18 @@ interface TripDetailScreenProps {
   route: {params: {tripId: string}};
 }
 
+const questions = [
+  'Define your Itinerary',
+  'Transport Options',
+  'Best time to visit',
+  'Safety Tips',
+  'Emergency and Useful Contacts',
+  'Approximate walking Distance',
+  'Language Tips',
+  "What's your favorite place you've visited?",
+  'Give Brief Summary',
+];
+
 const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {tripId} = route.params;
@@ -45,6 +59,17 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   const [selectedMedia, setSelectedMedia] = useState<{
     [key: number]: {uri: string; type: string}[];
   }>({});
+  const [vlogMedia, setVlogMedia] = useState<{
+    uri: string;
+    type: string;
+  } | null>(null);
+  const [cutsMedia, setCutsMedia] = useState<{
+    uri: string;
+    type: string;
+  } | null>(null);
+  const [popUpIndex, setPopUpIndex] = useState(0);
+  const [responses, setResponses] = useState(Array(questions.length).fill(''));
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchTripDetails = async () => {
@@ -81,14 +106,15 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   };
 
   const handleFinish = () => {
-    Alert.alert('Success', 'Trip Published');
+    setPopUpIndex(0); // Reset to the first question
+    setModalVisible(true); // Show the first pop-up
   };
 
-  const selectMedia = (index: number) => {
+  const selectMedia = (index: number, type: 'mixed' | 'video' = 'mixed') => {
     launchImageLibrary(
       {
-        mediaType: 'mixed',
-        selectionLimit: 0, // Allows multiple selections
+        mediaType: type, // Allows mixed (image/video) or only video
+        selectionLimit: 0, // Allow multiple selections (set to 0 for unlimited)
       },
       response => {
         if (response.didCancel) {
@@ -99,15 +125,42 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
           const selectedMediaItems = response.assets
             .map(asset => ({
               uri: asset.uri || '',
-              type: asset.type || 'image/jpeg',
+              type: asset.type || 'video/mp4', // Default to video/mp4
             }))
             .filter(media => media.uri);
 
           setSelectedMedia(prev => ({
             ...prev,
-            [index]: selectedMediaItems,
+            [index]: [...(prev[index] || []), ...selectedMediaItems], // Append new media to the existing ones
           }));
           console.log('Selected Media for Card:', selectedMediaItems);
+        }
+      },
+    );
+  };
+
+  const selectVlogOrCutsMedia = (
+    setMediaState: React.Dispatch<
+      React.SetStateAction<{uri: string; type: string} | null>
+    >,
+  ) => {
+    launchImageLibrary(
+      {
+        mediaType: 'video', // Only allow video for Vlog and Cuts
+        selectionLimit: 1, // Only allow one video to be selected
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('User cancelled video picker');
+        } else if (response.errorMessage) {
+          console.error('VideoPicker Error:', response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          const selectedVideo = {
+            uri: response.assets[0]?.uri || '',
+            type: 'video/mp4',
+          };
+          setMediaState(selectedVideo);
+          console.log('Selected Video:', selectedVideo);
         }
       },
     );
@@ -184,6 +237,168 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
       Alert.alert('Error', 'Failed to save media to database');
     }
   };
+  const uploadVlogOrCutsToCloudinary = async (
+    media: {uri: string; type: string} | null,
+    mediaType: 'Vlog' | 'Cuts',
+  ) => {
+    if (!media || !media.uri) {
+      Alert.alert(
+        'Error',
+        `Please select a ${mediaType.toLowerCase()} video to upload`,
+      );
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', {
+        uri: media.uri,
+        type: media.type,
+        name: `${mediaType.toLowerCase()}.mp4`, // Naming convention for media
+      });
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      formData.append('folder', mediaType); // Upload to the corresponding folder: "Vlog" or "Cuts"
+
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+
+      const url = response.data.url;
+      const public_id = response.data.public_id;
+      const format = response.data.format;
+      const asset_id = response.data.asset_id;
+      const resource_type = response.data.resource_type;
+
+      if (mediaType === 'Vlog') {
+        await updateVlogInDB(
+          url,
+          public_id,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+        ); // Call API to update Vlog in DB
+      } else if (mediaType === 'Cuts') {
+        await updateCutsInDB(
+          url,
+          public_id,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+        ); // Call API to update Cuts in DB
+      }
+
+      Alert.alert('Success', `${mediaType} video uploaded successfully`);
+    } catch (error) {
+      console.error(`Error uploading ${mediaType} video to Cloudinary:`, error);
+      Alert.alert('Error', `Failed to upload ${mediaType} video`);
+    }
+  };
+
+  // Function to update Vlog in DB using a separate API
+  const updateVlogInDB = async (
+    url: string,
+    public_id: string,
+    format: string,
+    asset_id: string,
+    resource_type: string,
+    tripId: string,
+  ) => {
+    try {
+      await axios.post(
+        'http://192.168.100.38:4000/api/v1/createVlog', // API for uploading Vlog
+        {
+          public_id,
+          url,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+        },
+      );
+      console.log('Vlog uploaded to DB:');
+    } catch (error) {
+      console.error('Error updating Vlog in DB:', error);
+    }
+  };
+
+  // Function to update Cuts in DB using a separate API
+  const updateCutsInDB = async (
+    url: string,
+    public_id: string,
+    format: string,
+    asset_id: string,
+    resource_type: string,
+    tripId: string,
+  ) => {
+    try {
+      const response = await axios.post(
+        'http://192.168.100.38:4000/api/v1/createCuts', // API for uploading Cuts
+        {
+          public_id,
+          url,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+        },
+      );
+      console.log('Cuts uploaded to DB:', response.data);
+    } catch (error) {
+      console.error('Error updating Cuts in DB:', error);
+    }
+  };
+
+  const submitResponses = async () => {
+    try {
+      // Log the current responses state
+      console.log('Current responses:', responses);
+
+      // Construct the payload according to your Mongoose schema
+      const payload = {
+        tripId, // Pass the tripId
+        q1: responses[0] || '',
+        q2: responses[1] || '',
+        q3: responses[2] || '',
+        q4: responses[3] || '',
+        q5: responses[4] || '',
+        q6: responses[5] || '',
+        q7: responses[6] || '',
+        q8: responses[7] || '',
+        q9: responses[8] || '',
+      };
+
+      // Log the final payload to be sent
+      console.log('Payload being sent:', payload);
+
+      // Make the API request to submit the itinerary
+      const response = await axios.post(
+        'http://192.168.100.38:4000/api/v1/createItinerary',
+        payload,
+      );
+
+      Alert.alert('Success', 'Itinerary successfully created');
+    } catch (error) {
+      console.error('Error submitting responses:', error);
+      Alert.alert('Error', 'Failed to submit the itinerary');
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (popUpIndex < questions.length - 1) {
+      setPopUpIndex(prevIndex => prevIndex + 1);
+    } else {
+      submitResponses();
+      setModalVisible(false); // Close modal after submission
+    }
+  };
 
   if (loading) {
     return (
@@ -208,7 +423,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
         {tripDetails.destinations.map((destination, index) => (
           <View
             key={`${destination.destinationName}-${index}`}
-            style={[styles.card]}>
+            style={styles.card}>
             <TouchableOpacity
               onPress={() => handleExpand(index)}
               style={styles.cardHeader}>
@@ -227,7 +442,6 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
                     onPress={() => selectMedia(index)}>
                     <Text style={styles.plusSign}>+</Text>
                   </TouchableOpacity>
-
                   {selectedMedia[index]?.map((media, mediaIndex) => (
                     <Image
                       key={mediaIndex}
@@ -248,8 +462,95 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
             )}
           </View>
         ))}
+
+        {/* Vlog Card */}
+        <View style={styles.card}>
+          <TouchableOpacity
+            onPress={() => handleExpand(999)}
+            style={styles.cardHeader}>
+            <Text style={styles.destination}>Vlog</Text>
+          </TouchableOpacity>
+          {expandedIndex === 999 && (
+            <View style={styles.expandedContent}>
+              <TouchableOpacity
+                style={styles.uploadBox}
+                onPress={() => selectVlogOrCutsMedia(setVlogMedia)}>
+                <Text style={styles.plusSign}>+</Text>
+              </TouchableOpacity>
+              {vlogMedia && (
+                <Image
+                  source={{uri: vlogMedia.uri}}
+                  style={styles.mediaPreview}
+                />
+              )}
+              <View style={styles.uploadButton}>
+                <Button
+                  title="Upload Vlog"
+                  onPress={() =>
+                    uploadVlogOrCutsToCloudinary(vlogMedia, 'Vlog')
+                  }
+                />
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Cuts Card */}
+        <View style={styles.card}>
+          <TouchableOpacity
+            onPress={() => handleExpand(1000)}
+            style={styles.cardHeader}>
+            <Text style={styles.destination}>Cuts</Text>
+          </TouchableOpacity>
+          {expandedIndex === 1000 && (
+            <View style={styles.expandedContent}>
+              <TouchableOpacity
+                style={styles.uploadBox}
+                onPress={() => selectVlogOrCutsMedia(setCutsMedia)}>
+                <Text style={styles.plusSign}>+</Text>
+              </TouchableOpacity>
+              {cutsMedia && (
+                <Image
+                  source={{uri: cutsMedia.uri}}
+                  style={styles.mediaPreview}
+                />
+              )}
+              <View style={styles.uploadButton}>
+                <Button
+                  title="Upload Cuts"
+                  onPress={() =>
+                    uploadVlogOrCutsToCloudinary(cutsMedia, 'Cuts')
+                  }
+                />
+              </View>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.submitButton}>
+          <Button title="Finish" onPress={handleFinish} />
+        </View>
       </ScrollView>
-      <Button title="Finish" onPress={handleFinish} />
+
+      {/* Modal for itinerary questions */}
+      <Modal visible={modalVisible} transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalQuestion}>{questions[popUpIndex]}</Text>
+            <TextInput
+              style={styles.textInput}
+              value={responses[popUpIndex]}
+              onChangeText={text => {
+                const updatedResponses = [...responses];
+                updatedResponses[popUpIndex] = text;
+                setResponses(updatedResponses);
+              }}
+              placeholder="Your answer"
+            />
+            <Button title="Next" onPress={handleNextQuestion} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -257,22 +558,19 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f9fa',
+    padding: 20,
+    backgroundColor: '#f8f8f8',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
   },
   card: {
-    padding: 16,
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-    elevation: 2,
-  },
-  uploadButton: {
-    marginTop: 20, // Adjust the margin as needed
+    padding: 20,
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    elevation: 3,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -281,39 +579,76 @@ const styles = StyleSheet.create({
   },
   destination: {
     fontSize: 18,
+    fontWeight: '600',
   },
   expandedContent: {
-    marginTop: 10,
+    paddingTop: 10,
   },
   mediaScroll: {
     flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: 10,
   },
   uploadBox: {
-    marginRight: 10,
-    height: 150,
-    width: 200,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    width: 100,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
     backgroundColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 10,
+    marginRight: 10,
   },
   plusSign: {
-    fontSize: 32,
-    color: '#000',
+    fontSize: 30,
+    color: '#888',
   },
   mediaPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
     marginRight: 10,
-    width: 200,
-    height: 150,
-    borderRadius: 8,
+  },
+  uploadButton: {
+    marginTop: 10,
+  },
+  submitButton: {
+    marginTop: 20,
+    backgroundColor: '#007BFF',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalQuestion: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  textInput: {
+    width: '100%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f8f8f8',
   },
 });
 
