@@ -78,7 +78,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
 
       try {
         const response = await axios.post(
-          'http://192.168.100.38:4000/api/v1/getTrips',
+          'http://192.168.100.72:4000/api/v1/getTrips',
           {
             user_id: user_id,
           },
@@ -225,7 +225,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   ) => {
     try {
       // Send all media as an array
-      await axios.post(`http://192.168.100.38:4000/api/v1/saveMedia`, {
+      await axios.post(`http://192.168.100.72:4000/api/v1/saveMedia`, {
         tripId,
         destinationName,
         media: mediaDataArray, // Pass the array of media
@@ -313,7 +313,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   ) => {
     try {
       await axios.post(
-        'http://192.168.100.38:4000/api/v1/createVlog', // API for uploading Vlog
+        'http://192.168.100.72:4000/api/v1/createVlog', // API for uploading Vlog
         {
           public_id,
           url,
@@ -340,7 +340,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   ) => {
     try {
       const response = await axios.post(
-        'http://192.168.100.38:4000/api/v1/createCuts', // API for uploading Cuts
+        'http://192.168.100.72:4000/api/v1/createCuts', // API for uploading Cuts
         {
           public_id,
           url,
@@ -380,7 +380,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
 
       // Make the API request to submit the itinerary
       const response = await axios.post(
-        'http://192.168.100.38:4000/api/v1/createItinerary',
+        'http://192.168.100.72:4000/api/v1/createItinerary',
         payload,
       );
 
@@ -397,6 +397,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
     } else {
       submitResponses();
       setModalVisible(false); // Close modal after submission
+      navigation.navigate('TripLandingPage', {tripId});
     }
   };
 
@@ -547,7 +548,10 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
               }}
               placeholder="Your answer"
             />
-            <Button title="Next" onPress={handleNextQuestion} />
+            <Button
+              title={popUpIndex < questions.length - 1 ? 'Next' : 'Finsh'}
+              onPress={handleNextQuestion}
+            />
           </View>
         </View>
       </Modal>

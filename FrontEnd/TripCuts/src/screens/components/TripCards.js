@@ -17,7 +17,7 @@ const TravelCardScreen = () => {
     const fetchTrips = async () => {
       const userId = await getUserID();
       try {
-        const response = await fetch('http://192.168.100.38:4000/api/v1/getTrips', {
+        const response = await fetch('http://192.168.100.72:4000/api/v1/getTrips', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

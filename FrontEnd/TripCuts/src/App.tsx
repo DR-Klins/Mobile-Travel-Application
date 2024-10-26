@@ -1,4 +1,3 @@
-// App.tsx
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {
@@ -6,14 +5,15 @@ import {
   StackNavigationProp,
 } from '@react-navigation/stack';
 import {View, Text, Button, StyleSheet} from 'react-native';
-import Login from './screens/Login'; // Import the Login component
-import SignUp from './screens/SignUp'; // Import the SignUp component
-import Reels from './screens/Reels'; // Import the Reels component
-import Profile from './screens/Profile'; // Import the Profile component
-import CreateTrip from './screens/CreateTrip'; // Import the Profile component
+import Login from './screens/Login';
+import SignUp from './screens/SignUp';
+import Reels from './screens/Reels';
+import Profile from './screens/Profile';
+import CreateTrip from './screens/CreateTrip';
 import Bag from './screens/Bag';
-import CreateTripDetails from './screens/CreateTripDetails'; // Import the CreateTripDetails component
-import {AuthProvider, useAuth} from './screens/context/AuthContext'; // Import the AuthContext component
+import TripLandingPage from './screens/TripLandingPage'; // Import the TripLandingPage component
+import CreateTripDetails from './screens/CreateTripDetails';
+import {AuthProvider, useAuth} from './screens/context/AuthContext';
 import MediaUpload from './screens/MediaUpload';
 import {RouteProp} from '@react-navigation/native';
 
@@ -28,6 +28,7 @@ export type RootStackParamList = {
   Bag: undefined;
   CreateTripDetails: undefined;
   MediaUpload: {tripId: string};
+  TripLandingPage: {tripId: string}; // Pass videoId to TripLandingPage
 };
 
 // Define types for the HomeScreen navigation prop
@@ -46,6 +47,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
       <Text style={styles.title}>Welcome</Text>
       <Button title="Login" onPress={() => navigation.navigate('Login')} />
       <Button title="Signup" onPress={() => navigation.navigate('SignUp')} />
+      <Button
+        title="Go to Trip Landing Page"
+        onPress={() =>
+          navigation.navigate('TripLandingPage', {videoId: 'sample-video-id'})
+        }
+      />
     </View>
   );
 };
@@ -81,6 +88,11 @@ const AuthenticatedStack = () => (
     <Stack.Screen
       name="MediaUpload"
       component={MediaUpload}
+      options={{headerShown: false}} // Hide the top navigation bar
+    />
+    <Stack.Screen
+      name="TripLandingPage"
+      component={TripLandingPage}
       options={{headerShown: false}} // Hide the top navigation bar
     />
   </Stack.Navigator>

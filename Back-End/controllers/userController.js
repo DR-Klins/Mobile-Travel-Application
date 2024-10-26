@@ -8,6 +8,9 @@ const CustomError = require("../utils/customError");
 const cookieToken = require("../utils/cookieToken");
 const mailHelper = require("../utils/emailHelper");
 const crypto = require("crypto");
+const VlogModel = require("../models/createVlog");
+const getItinerary = require("../models/createItinerary");
+
 
 exports.signup = BigPromise(async (req, res, next) => {
   
@@ -598,5 +601,161 @@ exports.createCuts = BigPromise(async (req, res, next) => {
           success: false,
           message: `Error creating Vlog: ${error.message}`,
       });
+  }
+});
+
+exports.getVlog = BigPromise(async (req, res, next) => {
+  // Log the request params for debugging
+  console.log(req.body);
+
+  // Destructure trip ID from request parameters
+  const { trip_id } = req.body;
+
+  // Check if trip_id is provided
+  if (!trip_id) {
+    return next(new CustomError("Trip ID required", 400));
+  }
+
+  try {
+    // Check if the trip exists
+    const tripExists = await Trip.findById(trip_id);
+    if (!tripExists) {
+      return next(new CustomError("Trip ID not found", 404));
+    }
+
+    // Fetch the vlog using the trip ID
+    const vlog = await VlogModel.findOne({ tripId: trip_id }); // Use tripId to find the vlog
+
+    // Check if the vlog exists
+    if (!vlog) {
+      return res.status(404).json({
+        success: false,
+        message: "Vlog not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      vlog, // Return the fetched vlog
+    });
+  } catch (error) {
+    console.error("Database error:", error); // Log the error for debugging
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+exports.createCuts = BigPromise(async (req, res, next) => {
+  const { public_id, url, format, asset_id, resource_type, tripId } = req.body;
+
+  try {
+      // Create a new vlog in the database
+      const newVlog = await Cuts.create({
+          public_id,
+          url,
+          format,
+          asset_id,
+          resource_type,
+          tripId,
+      });
+
+      return res.status(200).json({
+          success: true,
+          message: "Vlog Created",
+          data: newVlog, // Optionally return the created vlog
+      });
+  } catch (error) {
+      return res.status(500).json({
+          success: false,
+          message: `Error creating Vlog: ${error.message}`,
+      });
+  }
+});
+
+exports.getVlog = BigPromise(async (req, res, next) => {
+  // Log the request params for debugging
+  console.log(req.body);
+
+  // Destructure trip ID from request parameters
+  const { trip_id } = req.body;
+
+  // Check if trip_id is provided
+  if (!trip_id) {
+    return next(new CustomError("Trip ID required", 400));
+  }
+
+  try {
+    // Check if the trip exists
+    const tripExists = await Trip.findById(trip_id);
+    if (!tripExists) {
+      return next(new CustomError("Trip ID not found", 404));
+    }
+
+    // Fetch the vlog using the trip ID
+    const vlog = await VlogModel.findOne({ tripId: trip_id }); // Use tripId to find the vlog
+
+    // Check if the vlog exists
+    if (!vlog) {
+      return res.status(404).json({
+        success: false,
+        message: "Vlog not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      vlog, // Return the fetched vlog
+    });
+  } catch (error) {
+    console.error("Database error:", error); // Log the error for debugging
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+exports.getItinerary = BigPromise(async (req, res, next) => {
+  // Log the request params for debugging
+  console.log(req.body);
+
+  // Destructure trip ID from request parameters
+  const { trip_id } = req.body;
+
+  // Check if trip_id is provided
+  if (!trip_id) {
+    return next(new CustomError("Trip ID required", 400));
+  }
+
+  try {
+    // Check if the trip exists
+    const tripExists = await Trip.findById(trip_id);
+    if (!tripExists) {
+      return next(new CustomError("Trip ID not found", 404));
+    }
+
+    // Fetch the vlog using the trip ID
+    const itinerary = await getItinerary.findOne({ tripId: trip_id }); // Use tripId to find the vlog
+
+    // Check if the vlog exists
+    if (!itinerary) {
+      return res.status(404).json({
+        success: false,
+        message: "Vlog not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      itinerary, // Return the fetched vlog
+    });
+  } catch (error) {
+    console.error("Database error:", error); // Log the error for debugging
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 });

@@ -383,7 +383,7 @@
       "platforms": {
         "ios": {
           "podspecPath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-video\\react-native-video.podspec",
-          "version": "6.6.4",
+          "version": "6.7.0",
           "configurations": [],
           "scriptPhases": []
         },

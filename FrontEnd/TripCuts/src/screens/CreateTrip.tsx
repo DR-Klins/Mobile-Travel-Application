@@ -90,7 +90,7 @@ const CreateTrip = () => {
 
     try {
       const response = await fetch(
-        'http://192.168.100.38:4000/api/v1/createTrip',
+        'http://192.168.100.72:4000/api/v1/createTrip',
         {
           method: 'POST',
           headers: {

@@ -89,7 +89,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
 
       try {
         const response = await axios.post(
-          'http://192.168.100.38:4000/api/v1/getTrips',
+          'http://192.168.100.72:4000/api/v1/getTrips',
           {
             user_id: user_id,
           },
@@ -128,7 +128,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
           if (currentPlaceName.includes(destinationName.split(',')[0].trim())) {
             try {
               await axios.post(
-                'http://192.168.100.38:4000/api/v1/updateVisited',
+                'http://192.168.100.72:4000/api/v1/updateVisited',
                 {
                   tripId,
                   destinationName,
