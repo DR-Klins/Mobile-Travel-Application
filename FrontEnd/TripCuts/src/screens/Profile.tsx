@@ -24,6 +24,7 @@ type VideoData = {
   asset_id: string;
   resource_type: string;
   tripId: string;
+  tripName: string;
   created_at: string;
 };
 
@@ -69,6 +70,12 @@ const ProfileScreen = () => {
     fetchVideos();
   }, []);
 
+  const handleItineraryPress = () => {
+    if (selectedVideo) {
+      navigation.navigate('TripLandingPage', {tripId: selectedVideo.tripId});
+    }
+  };
+
   const handleCreateTripPress = () => {
     navigation.navigate('CreateTrip');
   };
@@ -84,9 +91,9 @@ const ProfileScreen = () => {
     const backAction = () => {
       if (selectedVideo) {
         closeVideo();
-        return true; // Prevent default back action
+        return true;
       }
-      return false; // Allow default back action
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -94,8 +101,27 @@ const ProfileScreen = () => {
       backAction,
     );
 
-    return () => backHandler.remove(); // Clean up the event listener
+    return () => backHandler.remove();
   }, [selectedVideo]);
+
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
+  const getRandomShape = () => {
+    const shapes = [
+      {width: 150, height: 150, borderRadius: 10}, // Square
+      {width: 180, height: 120, borderRadius: 15}, // Rectangle
+      {width: 150, height: 150, borderRadius: 75}, // Circle
+      {width: 170, height: 130, borderRadius: 20}, // Rounded rectangle
+    ];
+    return shapes[Math.floor(Math.random() * shapes.length)];
+  };
 
   return (
     <View style={styles.container}>
@@ -127,12 +153,13 @@ const ProfileScreen = () => {
         contentContainerStyle={styles.masonryGrid}
         renderItem={({item}) => (
           <TouchableOpacity
-            style={styles.videoTile}
+            style={[
+              styles.videoTile,
+              getRandomShape(),
+              {backgroundColor: getRandomColor()},
+            ]}
             onPress={() => openVideo(item)}>
-            <Image
-              source={{uri: 'https://via.placeholder.com/100'}}
-              style={styles.videoThumbnail}
-            />
+            <Text style={styles.tripName}>{item.tripName}</Text>
           </TouchableOpacity>
         )}
       />
@@ -149,10 +176,16 @@ const ProfileScreen = () => {
             <Video
               source={{uri: selectedVideo.url}}
               style={styles.modalVideo}
-              resizeMode="cover" // Change to cover to fill the modal
-              repeat={true} // Play video in a loop
+              resizeMode="cover"
+              repeat={true}
             />
           </View>
+          {/* Itinerary Button */}
+          <TouchableOpacity
+            style={styles.itineraryButton}
+            onPress={handleItineraryPress}>
+            <Text style={styles.itineraryButtonText}>Itinerary</Text>
+          </TouchableOpacity>
         </Modal>
       )}
     </View>
@@ -222,37 +255,49 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   videoTile: {
-    width: 150,
-    height: 150,
-    borderRadius: 10,
     margin: 5,
-    backgroundColor: '#444',
+    justifyContent: 'center',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
-  videoThumbnail: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+  tripName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    padding: 10,
   },
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative', // Ensure positioning context for absolute elements
+    position: 'relative',
   },
   modalVideo: {
-    width: '100%', // Full width
-    height: '100%', // Full height
+    width: '100%',
+    height: '100%',
   },
   modalCloseButton: {
     position: 'absolute',
     top: 40,
     right: 20,
-    zIndex: 10, // Ensure it’s above the video
+    zIndex: 10,
+  },
+  itineraryButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    padding: 10,
+    backgroundColor: '#3D9676',
+    borderRadius: 5,
+  },
+  itineraryButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

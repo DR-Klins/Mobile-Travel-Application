@@ -110,6 +110,30 @@
         }
       }
     },
+    "react-native-create-thumbnail": {
+      "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-create-thumbnail",
+      "name": "react-native-create-thumbnail",
+      "platforms": {
+        "ios": {
+          "podspecPath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-create-thumbnail\\react-native-create-thumbnail.podspec",
+          "version": "2.0.0",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-create-thumbnail\\android",
+          "packageImportPath": "import com.reactlibrary.createthumbnail.CreateThumbnailPackage;",
+          "packageInstance": "new CreateThumbnailPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "D:/Finally/Mobile Travel Application/FrontEnd/TripCuts/node_modules/react-native-create-thumbnail/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-geolocation-service": {
       "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native-geolocation-service",
       "name": "react-native-geolocation-service",
