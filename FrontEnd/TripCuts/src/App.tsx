@@ -1,24 +1,33 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  ImageBackground,
+  Animated,
+  TouchableOpacity,
+} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {
   createStackNavigator,
   StackNavigationProp,
 } from '@react-navigation/stack';
-import {View, Text, Button, StyleSheet} from 'react-native';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 import Reels from './screens/Reels';
 import Profile from './screens/Profile';
 import CreateTrip from './screens/CreateTrip';
 import Bag from './screens/Bag';
-import TripLandingPage from './screens/TripLandingPage'; // Import the TripLandingPage component
 import CreateTripDetails from './screens/CreateTripDetails';
-import {AuthProvider, useAuth} from './screens/context/AuthContext';
 import MediaUpload from './screens/MediaUpload';
-import {RouteProp} from '@react-navigation/native';
+import TripLandingPage from './screens/TripLandingPage';
+import {AuthProvider, useAuth} from './screens/context/AuthContext';
 
 // Define types for navigation
 export type RootStackParamList = {
+  Onboarding: undefined;
   Home: undefined;
   Login: undefined;
   SignUp: undefined;
@@ -26,33 +35,101 @@ export type RootStackParamList = {
   Profile: undefined;
   CreateTrip: undefined;
   Bag: undefined;
-  CreateTripDetails: undefined;
+  CreateTripDetails: {tripId: string};
   MediaUpload: {tripId: string};
-  TripLandingPage: {tripId: string}; // Pass videoId to TripLandingPage
+  TripLandingPage: {tripId: string};
 };
 
-// Define types for the HomeScreen navigation prop
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+// Define types for the OnboardingScreen navigation prop
+type OnboardingScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Onboarding'
+>;
 
-type HomeScreenProps = {
-  navigation: HomeScreenNavigationProp;
-  route: RouteProp<RootStackParamList, 'Home'>;
+type OnboardingScreenProps = {
+  navigation: OnboardingScreenNavigationProp;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
+const OnboardingScreen: React.FC<OnboardingScreenProps> = ({navigation}) => {
+  const scrollViewRef = useRef<ScrollView | null>(null);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const slides = [
+    {
+      title: 'Explore the World',
+      description:
+        'Discover amazing destinations and adventures waiting for you.',
+      image: require('./screens/assets/travel1.jpg'),
+    },
+    {
+      title: 'Plan Your Trips',
+      description: 'Easily create itineraries for your travels with our app.',
+      image: require('./screens/assets/travel2.jpg'),
+    },
+    {
+      title: 'Join Travel Buddy',
+      description: 'Sign up now and start your journey with us!',
+      image: require('./screens/assets/travel1.jpg'),
+    },
+  ];
+
+  const renderItem = (
+    item: {title: string; description: string; image: any},
+    index: number,
+  ) => (
+    <ImageBackground
+      key={index}
+      source={item.image}
+      style={styles.slide}
+      resizeMode="cover">
+      <View style={styles.overlay}>
+        <Text style={styles.slideTitle}>{item.title}</Text>
+        <Text style={styles.slideDescription}>{item.description}</Text>
+        {/* Only show buttons on the last slide */}
+        {index === slides.length - 1 && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.registerButton]}
+              onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.buttonText}>Register</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </ImageBackground>
+  );
+
+  const handleScroll = (event: any) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const slideSize = Dimensions.get('window').width;
+    const index = Math.floor(contentOffsetX / slideSize);
+    setCurrentIndex(index);
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
-      <Button title="Login" onPress={() => navigation.navigate('Login')} />
-      <Button title="Signup" onPress={() => navigation.navigate('SignUp')} />
-      <Button
-        title="Go to Trip Landing Page"
-        onPress={() =>
-          navigation.navigate('TripLandingPage', {videoId: 'sample-video-id'})
-        }
-      />
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        ref={scrollViewRef}>
+        {slides.map((slide, index) => renderItem(slide, index))}
+      </ScrollView>
+
+      {/* Swipe instruction text, hidden on the last slide */}
+      {currentIndex < slides.length - 2 && (
+        <Text style={styles.swipeText}>swipe &gt;&gt;</Text>
+      )}
     </View>
   );
 };
@@ -63,47 +140,55 @@ const AuthenticatedStack = () => (
     <Stack.Screen
       name="Reels"
       component={Reels}
-      options={{headerShown: false}} // Hide the top navigation bar
+      options={{headerShown: false}}
     />
     <Stack.Screen
       name="Profile"
       component={Profile}
-      options={{headerShown: false}} // Hide the top navigation bar
+      options={{headerShown: false}}
     />
     <Stack.Screen
       name="CreateTrip"
       component={CreateTrip}
-      options={{headerShown: false}} // Hide the top navigation bar
+      options={{headerShown: false}}
     />
-    <Stack.Screen
-      name="Bag"
-      component={Bag}
-      options={{headerShown: false}} // Hide the top navigation bar
-    />
+    <Stack.Screen name="Bag" component={Bag} options={{headerShown: false}} />
     <Stack.Screen
       name="CreateTripDetails"
       component={CreateTripDetails}
-      options={{headerShown: false}} // Hide the top navigation bar
+      options={{headerShown: false}}
     />
     <Stack.Screen
       name="MediaUpload"
       component={MediaUpload}
-      options={{headerShown: false}} // Hide the top navigation bar
+      options={{headerShown: false}}
     />
     <Stack.Screen
       name="TripLandingPage"
       component={TripLandingPage}
-      options={{headerShown: false}} // Hide the top navigation bar
+      options={{headerShown: false}}
     />
   </Stack.Navigator>
 );
 
 // Unauthenticated stack component
 const UnauthenticatedStack = () => (
-  <Stack.Navigator initialRouteName="Home">
-    <Stack.Screen name="Home" component={HomeScreen} />
-    <Stack.Screen name="Login" component={Login} />
-    <Stack.Screen name="SignUp" component={SignUp} />
+  <Stack.Navigator initialRouteName="Onboarding">
+    <Stack.Screen
+      name="Onboarding"
+      component={OnboardingScreen}
+      options={{headerShown: false}}
+    />
+    <Stack.Screen
+      name="Login"
+      component={Login}
+      options={{headerShown: false}}
+    />
+    <Stack.Screen
+      name="SignUp"
+      component={SignUp}
+      options={{headerShown: false}}
+    />
   </Stack.Navigator>
 );
 
@@ -112,7 +197,7 @@ const App = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.loadingContainer}>
         <Text>Loading...</Text>
       </View>
     );
@@ -128,13 +213,68 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  slide: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
+  slideTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  slideDescription: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#E7B171',
     marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 30,
+  },
+  button: {
+    backgroundColor: '#3D9676',
+    borderRadius: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    elevation: 5,
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  registerButton: {
+    backgroundColor: '#E7B171',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  swipeText: {
+    position: 'absolute',
+    bottom: 40,
+    right: 20,
+    fontSize: 14,
+    color: '#fff',
   },
 });
 

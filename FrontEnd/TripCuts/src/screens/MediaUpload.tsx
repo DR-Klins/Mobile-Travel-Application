@@ -274,6 +274,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
       const format = response.data.format;
       const asset_id = response.data.asset_id;
       const resource_type = response.data.resource_type;
+      const tripName = tripDetails?.tripName || 'Default Trip Name';
 
       if (mediaType === 'Vlog') {
         await updateVlogInDB(
@@ -291,6 +292,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
           format,
           asset_id,
           resource_type,
+          tripName,
           tripId,
         ); // Call API to update Cuts in DB
       }
@@ -336,17 +338,19 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
     format: string,
     asset_id: string,
     resource_type: string,
+    tripName: string,
     tripId: string,
   ) => {
     try {
       const response = await axios.post(
         'http://192.168.100.72:4000/api/v1/createCuts', // API for uploading Cuts
         {
-          public_id,
           url,
+          public_id,
           format,
           asset_id,
           resource_type,
+          tripName,
           tripId,
         },
       );

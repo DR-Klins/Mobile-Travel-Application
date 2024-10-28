@@ -7,6 +7,7 @@ const createCutsSchema = new mongoose.Schema({
     asset_id: { type: String },
     created_at: { type: Date, default: Date.now },
     resource_type: { type: String },
+    tripName:{type: String},
     tripId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip', required: true }, // Assuming it references a Trip model
 });
 

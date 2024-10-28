@@ -10,6 +10,8 @@ const mailHelper = require("../utils/emailHelper");
 const crypto = require("crypto");
 const VlogModel = require("../models/createVlog");
 const getItinerary = require("../models/createItinerary");
+const getCuts = require("../models/createCuts");
+const { log } = require("console");
 
 
 exports.signup = BigPromise(async (req, res, next) => {
@@ -578,28 +580,29 @@ exports.createVlog = BigPromise(async (req, res, next) => {
 
 
 exports.createCuts = BigPromise(async (req, res, next) => {
-  const { public_id, url, format, asset_id, resource_type, tripId } = req.body;
+  const { public_id, url, format, asset_id, resource_type, tripName, tripId } = req.body;
 
   try {
       // Create a new vlog in the database
-      const newVlog = await Cuts.create({
+      const newCuts = await Cuts.create({
           public_id,
           url,
           format,
           asset_id,
           resource_type,
+          tripName,
           tripId,
       });
 
       return res.status(200).json({
           success: true,
-          message: "Vlog Created",
-          data: newVlog, // Optionally return the created vlog
+          message: "Cuts Created",
+          data: newCuts, // Optionally return the created vlog
       });
   } catch (error) {
       return res.status(500).json({
           success: false,
-          message: `Error creating Vlog: ${error.message}`,
+          message: `Error creating Cuts: ${error.message}`,
       });
   }
 });
@@ -647,32 +650,6 @@ exports.getVlog = BigPromise(async (req, res, next) => {
   }
 });
 
-exports.createCuts = BigPromise(async (req, res, next) => {
-  const { public_id, url, format, asset_id, resource_type, tripId } = req.body;
-
-  try {
-      // Create a new vlog in the database
-      const newVlog = await Cuts.create({
-          public_id,
-          url,
-          format,
-          asset_id,
-          resource_type,
-          tripId,
-      });
-
-      return res.status(200).json({
-          success: true,
-          message: "Vlog Created",
-          data: newVlog, // Optionally return the created vlog
-      });
-  } catch (error) {
-      return res.status(500).json({
-          success: false,
-          message: `Error creating Vlog: ${error.message}`,
-      });
-  }
-});
 
 exports.getVlog = BigPromise(async (req, res, next) => {
   // Log the request params for debugging
@@ -750,6 +727,55 @@ exports.getItinerary = BigPromise(async (req, res, next) => {
     return res.status(200).json({
       success: true,
       itinerary, // Return the fetched vlog
+    });
+  } catch (error) {
+    console.error("Database error:", error); // Log the error for debugging
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+exports.getCuts = BigPromise(async (req, res, next) => {
+  // Log the request params for debugging
+  console.log(req.body);
+
+  // Destructure user ID from request parameters
+  const { user_id } = req.body;
+
+  // Check if user_id is provided
+  if (!user_id) {
+    return next(new CustomError("User ID required", 400));
+  }
+
+  try {
+    // Check if the user exists
+    const userExists = await User.findById(user_id);
+    if (!userExists) {
+      return next(new CustomError("User not found", 404));
+    }
+
+    // Step 1: Fetch all trips associated with the user
+    const trips = await Trip.find({ user_id: user_id }).select('_id');
+    
+    // If no trips found, return an empty array
+    if (trips.length === 0) {
+      return res.status(200).json({
+        success: true,
+        cuts: [], // Return an empty array if no trips found
+      });
+    }
+
+    // Step 2: Fetch cuts associated with the user's trips
+    const tripIds = trips.map(trip => trip._id); // Get trip IDs
+    console.log("tripid:",  tripIds)
+    const cuts = await getCuts.find({ tripId: { $in: tripIds } });
+
+    // Return the fetched cuts
+    return res.status(200).json({
+      success: true,
+      cuts,
     });
   } catch (error) {
     console.error("Database error:", error); // Log the error for debugging
