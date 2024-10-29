@@ -3,6 +3,33 @@
   "reactNativePath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\react-native",
   "reactNativeVersion": "0.75",
   "dependencies": {
+    "@pawan-pk/react-native-mapbox-navigation": {
+      "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@pawan-pk\\react-native-mapbox-navigation",
+      "name": "@pawan-pk/react-native-mapbox-navigation",
+      "platforms": {
+        "ios": {
+          "podspecPath": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@pawan-pk\\react-native-mapbox-navigation\\react-native-mapbox-navigation.podspec",
+          "version": "0.5.2",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@pawan-pk\\react-native-mapbox-navigation\\android",
+          "packageImportPath": "import com.mapboxnavigation.MapboxNavigationViewPackage;",
+          "packageInstance": "new MapboxNavigationViewPackage()",
+          "buildTypes": [],
+          "libraryName": "RNMapboxNavigationViewSpec",
+          "componentDescriptors": [
+            "MapboxNavigationViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "D:/Finally/Mobile Travel Application/FrontEnd/TripCuts/node_modules/@pawan-pk/react-native-mapbox-navigation/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "@react-native-async-storage/async-storage": {
       "root": "D:\\Finally\\Mobile Travel Application\\FrontEnd\\TripCuts\\node_modules\\@react-native-async-storage\\async-storage",
       "name": "@react-native-async-storage/async-storage",
