@@ -23,6 +23,9 @@ import Bag from './screens/Bag';
 import CreateTripDetails from './screens/CreateTripDetails';
 import MediaUpload from './screens/MediaUpload';
 import TripLandingPage from './screens/TripLandingPage';
+import SearchPage from './screens/SearchPage';
+import TravelerProfile from './screens/TravelerProfile';
+import Map from './screens/Map';
 import {AuthProvider, useAuth} from './screens/context/AuthContext';
 
 // Define types for navigation
@@ -38,6 +41,9 @@ export type RootStackParamList = {
   CreateTripDetails: {tripId: string};
   MediaUpload: {tripId: string};
   TripLandingPage: {tripId: string};
+  SearchPage: undefined;
+  TravelerProfile: {user_id: string};
+  Map: undefined;
 };
 
 // Define types for the OnboardingScreen navigation prop
@@ -168,6 +174,17 @@ const AuthenticatedStack = () => (
       component={TripLandingPage}
       options={{headerShown: false}}
     />
+    <Stack.Screen
+      name="SearchPage"
+      component={SearchPage}
+      options={{headerShown: false}}
+    />
+    <Stack.Screen
+      name="TravelerProfile"
+      component={TravelerProfile}
+      options={{headerShown: false}}
+    />
+    <Stack.Screen name="Map" component={Map} options={{headerShown: false}} />
   </Stack.Navigator>
 );
 

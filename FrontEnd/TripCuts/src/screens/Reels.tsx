@@ -81,11 +81,18 @@ const ReelsFeed = () => {
       });
     }
   };
+  const openMap = () => {
+    navigation.navigate('Map'); // Adjust based on your navigator setup
+  };
 
   // Handle message button press
   const handleMessagePress = () => {
     console.log('Message button pressed!');
     // Implement your messaging functionality here
+  };
+
+  const openSearchPage = () => {
+    navigation.navigate('SearchPage'); // Navigate to SearchPage
   };
 
   const handleProfilePress = () => {
@@ -191,6 +198,19 @@ const ReelsFeed = () => {
               <Icon name="envelope" size={24} color="white" />
             </TouchableOpacity>
           </Animated.View>
+          {/* Animated Profile button with an icon */}
+          <Animated.View
+            style={[
+              styles.mapButton,
+              {
+                opacity,
+                transform: [{translateY}],
+              },
+            ]}>
+            <TouchableOpacity onPress={openMap}>
+              <Icon name="user" size={54} color="white" />
+            </TouchableOpacity>
+          </Animated.View>
 
           {/* Animated Profile button with an icon */}
           <Animated.View
@@ -215,13 +235,16 @@ const ReelsFeed = () => {
                 transform: [{translateY}],
               },
             ]}>
-            <TextInput
-              placeholder="Search..."
-              placeholderTextColor="white"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              style={styles.searchInput} // Style for TextInput
-            />
+            <TouchableOpacity onPress={openSearchPage}>
+              <TextInput
+                placeholder="Search..."
+                placeholderTextColor="white"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={styles.searchInput}
+                editable={false} // Disable input here as it opens a new screen
+              />
+            </TouchableOpacity>
           </Animated.View>
         </>
       )}
@@ -254,6 +277,14 @@ const styles = StyleSheet.create({
   profileButton: {
     position: 'absolute',
     bottom: 100, // Adjust this based on search bar position
+    right: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Transparent background
+    padding: 10,
+    borderRadius: 25, // Rounded button
+  },
+  mapButton: {
+    position: 'absolute',
+    bottom: 300, // Adjust this based on search bar position
     right: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)', // Transparent background
     padding: 10,
