@@ -11,6 +11,7 @@ const crypto = require("crypto");
 const VlogModel = require("../models/createVlog");
 const getItinerary = require("../models/createItinerary");
 const getCuts = require("../models/createCuts");
+const getUsers = require("../models/user");
 const { log } = require("console");
 
 
@@ -783,5 +784,45 @@ exports.getCuts = BigPromise(async (req, res, next) => {
       success: false,
       message: error.message,
     });
+  }
+});
+
+exports.searchUsersAndCuts = BigPromise(async (req, res, next) => {
+  // Log the request body for debugging
+  console.log(req.body);
+
+  // Destructure search term from request body
+  const { query } = req.body;
+
+  // Check if query term is provided
+  if (!query) {
+      return next(new CustomError("Search term required", 400));
+  }
+
+  try {
+      // Find users whose usernames match the query, case-insensitive
+      const users = await User.find({ name: { $regex: query, $options: 'i' } });
+
+      // Find cuts whose titles match the query, case-insensitive
+      const cuts = await getCuts.find({ tripName: { $regex: query, $options: 'i' } });
+
+      // If no users or cuts are found, return a 404 status with a message
+      if (!users.length && !cuts.length) {
+          return res.status(404).json({
+              success: false,
+              message: "No results found for this search term",
+          });
+      }
+
+      return res.status(200).json({
+          success: true,
+          users,
+          cuts,
+      });
+  } catch (error) {
+      return res.status(500).json({
+          success: false,
+          message: error.message,
+      });
   }
 });

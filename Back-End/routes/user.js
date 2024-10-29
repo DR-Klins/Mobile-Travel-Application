@@ -25,7 +25,8 @@ const {
   createCuts,
   getVlog,
   getItinerary,
-  getCuts
+  getCuts,
+  searchUsersAndCuts,
 } = require("../controllers/userController");
 const { isLoggedIn, customRole } = require("../middlewares/user");
 
@@ -48,6 +49,7 @@ router.route("/createCuts").post(createCuts);
 router.route("/getVlog").post(getVlog);
 router.route("/getItinerary").post(getItinerary);
 router.route("/getCuts").post(getCuts);
+router.route("/searchUsersAndCuts").post(searchUsersAndCuts);
 
 //admin only routes
 router.route("/admin/users").get(isLoggedIn, customRole("admin"), adminAllUser);
