@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likedCuts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cuts' }],
+    watchedCuts: [{ videoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cuts' }, watchTime: Number }]
 });
 
 //encrypt password before save - HOOKS

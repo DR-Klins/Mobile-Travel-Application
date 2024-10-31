@@ -12,6 +12,7 @@ const VlogModel = require("../models/createVlog");
 const getItinerary = require("../models/createItinerary");
 const getCuts = require("../models/createCuts");
 const getUsers = require("../models/user");
+const userInteraction = require("../models/userInteractionSchema")
 const { log } = require("console");
 
 
@@ -826,3 +827,147 @@ exports.searchUsersAndCuts = BigPromise(async (req, res, next) => {
       });
   }
 });
+
+exports.getRecommendedVideos = BigPromise(async (user_id) => {
+  try {
+      const user = await User.findById(user_id)
+          .populate('likedCuts')
+          .populate('watchedCuts._id')
+          .populate('following');
+
+      if (!user) {
+          throw new CustomError('User not found', 404);
+      }
+
+      const tags = [];
+      user.likedCuts.forEach(video => tags.push(...video.tags));
+
+      user.watchedCuts.forEach(watched => {
+          if (watched._id && Array.isArray(watched._id.tags)) {
+              tags.push(...watched._id.tags);
+          }
+      });
+
+      // Get content-based recommendations
+      let contentBasedCuts = await Cuts.find({
+          tags: { $in: tags },
+          _id: { $nin: user.likedCuts.map(v => v._id).concat(user.watchedCuts.map(v => v._id)) }
+      }).limit(10);
+
+      // If not enough content-based recommendations, fetch trending
+      if (contentBasedCuts.length < 10) {
+          const trendingCuts = await Cuts.find({
+              _id: { $nin: user.likedCuts.map(v => v._id).concat(user.watchedCuts.map(v => v._id)) }
+          }).sort({ likes: -1, views: -1 }).limit(10 - contentBasedCuts.length);
+
+          contentBasedCuts = [...contentBasedCuts, ...trendingCuts];
+      }
+
+      // If still not enough, show random videos that the user hasn't watched
+      if (contentBasedCuts.length < 10) {
+          const remainingVideos = await Cuts.find({
+              _id: { $nin: user.likedCuts.map(v => v._id).concat(user.watchedCuts.map(v => v._id)) }
+          }).limit(10 - contentBasedCuts.length);
+
+          // Shuffle remaining videos to add some randomness
+          const shuffledRemainingVideos = remainingVideos.sort(() => 0.5 - Math.random()).slice(0, 10 - contentBasedCuts.length);
+          contentBasedCuts = [...contentBasedCuts, ...shuffledRemainingVideos];
+      }
+
+      return contentBasedCuts;
+  } catch (error) {
+      console.error('Error getting recommended Cuts:', error);
+      throw new CustomError('Failed to get recommended Cuts', 500);
+  }
+});
+
+
+
+exports.incrementVideoViews = BigPromise(async (req, res, next) => {
+  // Log the request params for debugging
+  console.log(req.body);
+  try {
+
+    const { _id, user_id } = req.body;
+
+    console.log('Incoming _id:', _id);
+    console.log('Incoming user_id:', user_id);
+
+    // Check if the video exists
+    const video = await Cuts.findById(_id);
+    if (!video) {
+      console.log('video not found');
+      throw new CustomError('Video not found', 404);
+    }
+
+    // Increment the view count for the video
+    await Cuts.findByIdAndUpdate(_id, {
+      $inc: { views: 1 } // Increment the 'views' field by 1
+    });
+
+    // Check if the user exists
+    const user = await User.findById(user_id);
+    if (!user) {
+      console.log('user not found');
+      throw new CustomError('user not found', 404);
+    }
+    
+      // store the video watch history for the user
+      await User.findByIdAndUpdate(user_id, {
+        $addToSet: { 'watchedCuts': { _id, watchTime: 0 } } // Add videoId to watchedVideos if not already present
+      });
+
+    return res.status(200).json({
+      success: true,
+      message: "View count incremented and watch history created",
+    });
+
+
+    //console.log('View count incremented and watch history updated');
+  } catch (error) {
+    console.error('Error incrementing video views:', error);
+    throw new CustomError('Failed to increment video views', 500);
+  }
+});
+
+
+
+exports.likeVideo = BigPromise(async (req, res, next) => {
+
+  console.log(req.body);
+
+  try {
+    const { _id, user_id } = req.body;
+
+
+    
+    // Check if the video exists
+    const video = await Cuts.findById(_id);
+    if (!video) {
+      console.log('video not found');
+      throw new CustomError('Video not found', 404);
+    }
+
+      // Add the user ID to the 'likes' array of the video
+      await Cuts.findByIdAndUpdate(_id, {
+          $addToSet: { likes: user_id }  // Add userId to likes array if not already present
+      });
+
+      // Optionally, also update the user's liked videos list
+      await User.findByIdAndUpdate(user_id, {
+          $addToSet: { likedCuts: _id }  // Add videoId to the user's likedVideos array
+      });
+      
+      console.log('Video liked successfully');
+      return res.status(200).json({
+        success: true,
+        message: "View count incremented and watch history created",
+      });
+
+
+  } catch (error) {
+      console.error('Error liking video:', error);
+      throw new CustomError('Failed to like video', 500);
+  }
+});
+

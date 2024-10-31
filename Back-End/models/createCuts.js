@@ -8,6 +8,9 @@ const createCutsSchema = new mongoose.Schema({
     created_at: { type: Date, default: Date.now },
     resource_type: { type: String },
     tripName:{type: String},
+    tags: [String],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    views: { type: Number, default: 0 },
     tripId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip', required: true }, // Assuming it references a Trip model
 });
 
