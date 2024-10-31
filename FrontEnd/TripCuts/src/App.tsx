@@ -72,13 +72,14 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({navigation}) => {
     },
     {
       title: 'Plan Your Trips',
-      description: 'Easily create itineraries for your travels with our app.',
+      description:
+        'Easily create or find itineraries for your travels with our app.',
       image: require('./screens/assets/travel2.jpg'),
     },
     {
-      title: 'Join Travel Buddy',
+      title: 'Join Trip Cuts',
       description: 'Sign up now and start your journey with us!',
-      image: require('./screens/assets/travel1.jpg'),
+      image: require('./screens/assets/travel3.jpg'),
     },
   ];
 
