@@ -7,7 +7,8 @@ import {
   ScrollView,
   Platform,
   Alert,
-  ActivityIndicator, // Added for loading indicator
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import axios from 'axios';
@@ -19,7 +20,7 @@ import {useAuth} from './context/AuthContext';
 interface Destination {
   destinationName: string;
   visited: boolean;
-  time: string | null; // Time could be nullable if not set
+  time: string | null;
 }
 
 interface TripDetails {
@@ -38,7 +39,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {tripId} = route.params;
   const [tripDetails, setTripDetails] = useState<TripDetails | null>(null);
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
   const {getUserID} = useAuth();
 
   const reverseGeocode = async (latitude: number, longitude: number) => {
@@ -90,25 +91,20 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
       try {
         const response = await axios.post(
           'http://192.168.100.72:4000/api/v1/getTrips',
-          {
-            user_id: user_id,
-          },
+          {user_id},
         );
         const trip = response.data.trips.find((t: any) => t._id === tripId);
         setTripDetails(trip);
 
-        // Check if all destinations are visited
         if (trip.destinations.every((dest: Destination) => dest.visited)) {
-          // If all destinations are visited, navigate to MediaUpload
-          // Navigate back two screens
           navigation.goBack(); // Go back once
           navigation.navigate('MediaUpload', {tripId});
         } else {
-          setLoading(false); // Allow rendering when not all destinations are visited
+          setLoading(false);
         }
       } catch (error) {
         console.error('Error fetching trip details:', error);
-        setLoading(false); // In case of error, allow rendering to show something
+        setLoading(false);
       }
     };
 
@@ -122,7 +118,6 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
       Geolocation.getCurrentPosition(
         async position => {
           const {latitude, longitude} = position.coords;
-
           const currentPlaceName = await reverseGeocode(latitude, longitude);
 
           if (currentPlaceName.includes(destinationName.split(',')[0].trim())) {
@@ -191,7 +186,6 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
       tripDetails.destinations.every((dest: Destination) => dest.visited)
     ) {
       Alert.alert('Finished', 'You have completed your trip checks.');
-      // Navigate back two screens
       navigation.goBack(); // Go back once
       navigation.navigate('MediaUpload', {tripId});
     } else {
@@ -205,7 +199,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#3D9676" />
       </View>
     );
   }
@@ -214,7 +208,7 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
     <View style={styles.container}>
       <Text style={styles.title}>Trip Details</Text>
       {tripDetails && (
-        <ScrollView>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
           {tripDetails.destinations.map(
             (destination: Destination, index: number) => (
               <View
@@ -228,17 +222,20 @@ const CreateTripDetails: React.FC<TripDetailScreenProps> = ({route}) => {
                   {destination.time ? ` (Time: ${destination.time})` : ''}
                 </Text>
                 {!destination.visited && (
-                  <Button
-                    title="Check"
-                    onPress={() => handleCheck(destination.destinationName)}
-                  />
+                  <TouchableOpacity
+                    style={styles.checkButton}
+                    onPress={() => handleCheck(destination.destinationName)}>
+                    <Text style={styles.checkButtonText}>Check</Text>
+                  </TouchableOpacity>
                 )}
               </View>
             ),
           )}
         </ScrollView>
       )}
-      <Button title="Finish" onPress={handleFinish} />
+      <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
+        <Text style={styles.finishButtonText}>Finish</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -247,29 +244,60 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1B3232',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#FAD8B0',
+    marginBottom: 20,
+    textAlign: 'left',
+  },
+  scrollContainer: {
+    paddingBottom: 20,
   },
   card: {
     padding: 16,
     marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    backgroundColor: '#415F5F',
     elevation: 2,
   },
   checkedCard: {
-    backgroundColor: '#d4edda', // Greenish background for checked cards
+    backgroundColor: 'black',
   },
   destination: {
     fontSize: 18,
+    color: '#FAD8B0',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  checkButton: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#3D9676',
+    alignItems: 'center',
+  },
+  checkButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  finishButton: {
+    backgroundColor: '#3D9676',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+    elevation: 3,
+  },
+  finishButtonText: {
+    color: '#E7B171',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

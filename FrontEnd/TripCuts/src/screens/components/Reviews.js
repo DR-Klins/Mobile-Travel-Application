@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 
 const Reviews = () => {
-  // Sample reviews data
   const reviews = [
     { id: '1', user: 'John Doe', review: 'Amazing trip! Highly recommended.' },
     { id: '2', user: 'Jane Smith', review: 'Loved every moment of it.' },
@@ -12,7 +11,7 @@ const Reviews = () => {
   const renderItem = ({ item }) => (
     <View style={styles.reviewItem}>
       <Text style={styles.userName}>{item.user}</Text>
-      <Text>{item.review}</Text>
+      <Text style={styles.reviewText}>{item.review}</Text>
     </View>
   );
 
@@ -31,21 +30,30 @@ const Reviews = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1B3232',
     padding: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#FAD8B0',
+    marginBottom: 12,
   },
   reviewItem: {
     marginBottom: 15,
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#3D9676',
+    borderRadius: 10,
   },
   userName: {
     fontWeight: 'bold',
+    color: '#FAD8B0',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  reviewText: {
+    color: '#FFFFFF',
+    fontSize: 14,
   },
 });
 

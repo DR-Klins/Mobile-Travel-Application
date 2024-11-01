@@ -14,6 +14,7 @@ import {
   createStackNavigator,
   StackNavigationProp,
 } from '@react-navigation/stack';
+import WelcomeScreen from './screens/WelcomeScreen';
 import Login from './screens/Login';
 import SignUp from './screens/SignUp';
 import Reels from './screens/Reels';
@@ -31,6 +32,7 @@ import {AuthProvider, useAuth} from './screens/context/AuthContext';
 // Define types for navigation
 export type RootStackParamList = {
   Onboarding: undefined;
+  WelcomeScreen: undefined;
   Home: undefined;
   Login: undefined;
   SignUp: undefined;
@@ -191,7 +193,12 @@ const AuthenticatedStack = () => (
 
 // Unauthenticated stack component
 const UnauthenticatedStack = () => (
-  <Stack.Navigator initialRouteName="Onboarding">
+  <Stack.Navigator initialRouteName="WelcomeScreen">
+    <Stack.Screen
+      name="WelcomeScreen"
+      component={WelcomeScreen}
+      options={{headerShown: false}}
+    />
     <Stack.Screen
       name="Onboarding"
       component={OnboardingScreen}

@@ -42,7 +42,7 @@ const Itinerary = ({ tripId }) => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#1B3232" />
       </View>
     );
   }
@@ -50,7 +50,7 @@ const Itinerary = ({ tripId }) => {
   if (!itinerary) {
     return (
       <View style={styles.container}>
-        <Text>No itinerary data available.</Text>
+        <Text style={styles.noDataText}>No itinerary data available.</Text>
       </View>
     );
   }
@@ -115,7 +115,6 @@ const Itinerary = ({ tripId }) => {
   );
 };
 
-// Define PropTypes for the component
 Itinerary.propTypes = {
   tripId: PropTypes.string.isRequired,
 };
@@ -123,6 +122,7 @@ Itinerary.propTypes = {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#1B3232',
   },
   loaderContainer: {
     flex: 1,
@@ -130,23 +130,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#415F5F',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 10,
+    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    marginBottom: 15,
   },
   cardTitle: {
     fontWeight: 'bold',
     fontSize: 16,
+    color: '#FAD8B0',
     marginBottom: 8,
   },
   item: {
-    marginBottom: 4,
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  noDataText: {
+    color: '#FAD8B0',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

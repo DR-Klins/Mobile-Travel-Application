@@ -50,7 +50,7 @@ const Destinations = ({ tripId }) => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#1B3232" />
       </View>
     );
   }
@@ -58,7 +58,7 @@ const Destinations = ({ tripId }) => {
   if (!tripDetails) {
     return (
       <View style={styles.container}>
-        <Text>No trip details available.</Text>
+        <Text style={styles.noDataText}>No trip details available.</Text>
       </View>
     );
   }
@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#1B3232',
   },
   loaderContainer: {
     flex: 1,
@@ -113,25 +114,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#FAD8B0',
     marginBottom: 10,
   },
   destinationItem: {
     marginBottom: 15,
     padding: 10,
-    backgroundColor: '#e8eaf6',
+    backgroundColor: '#415F5F',
     borderRadius: 8,
   },
   destination: {
     fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#1B3232',
     padding: 16,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#FAD8B0',
     marginBottom: 10,
   },
   mediaImage: {
@@ -148,8 +152,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   closeButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  noDataText: {
+    color: '#FAD8B0',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

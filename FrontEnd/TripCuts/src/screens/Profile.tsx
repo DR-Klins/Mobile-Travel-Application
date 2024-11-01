@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios, {AxiosError} from 'axios';
 import {useAuth} from './context/AuthContext';
 import Video from 'react-native-video';
+import {Dimensions} from 'react-native';
 
 type VideoData = {
   _id: string;
@@ -33,6 +34,8 @@ const ProfileScreen = () => {
   const {getUserID} = useAuth();
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
   const [videos, setVideos] = useState<VideoData[]>([]);
+  const [followers, setFollowers] = useState(10); // Initial follower count
+  const [following, setFollowing] = useState(6); // Initial following count
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -113,26 +116,41 @@ const ProfileScreen = () => {
     return color;
   };
 
+  const screenWidth = Dimensions.get('window').width;
+  const tileMargin = 22; // Space between tiles
+
   const getRandomShape = () => {
+    const tileSize = (screenWidth - tileMargin * 3) / 2; // Two tiles per row with margins
     const shapes = [
-      {width: 150, height: 150, borderRadius: 10}, // Square
-      {width: 180, height: 120, borderRadius: 15}, // Rectangle
-      {width: 150, height: 150, borderRadius: 75}, // Circle
-      {width: 170, height: 130, borderRadius: 20}, // Rounded rectangle
+      {width: tileSize, height: tileSize, borderRadius: 10}, // Square
+      {width: tileSize, height: tileSize * 0.8, borderRadius: 15}, // Rectangle
+      {width: tileSize, height: tileSize, borderRadius: tileSize / 2}, // Circle
+      {width: tileSize, height: tileSize * 0.9, borderRadius: 20}, // Rounded rectangle
     ];
     return shapes[Math.floor(Math.random() * shapes.length)];
   };
-
   return (
     <View style={styles.container}>
       {/* Profile Section */}
       <View style={styles.profileSection}>
         <Image
-          source={{uri: 'https://via.placeholder.com/120'}}
+          source={{
+            uri: 'https://storyblok-cdn.photoroom.com/f/191576/1200x800/faa88c639f/round_profil_picture_before_.webp',
+          }}
           style={styles.profilePhoto}
         />
         <Text style={styles.username}>Username</Text>
         <Text style={styles.bio}>Traveler | Adventurer | Blogger</Text>
+
+        {/* Followers and Following */}
+        <View style={styles.followSection}>
+          <View style={styles.followTextContainer}>
+            <Text style={styles.followText}>Followers: {followers}</Text>
+          </View>
+          <View style={styles.followTextContainer}>
+            <Text style={styles.followText}>Following: {following}</Text>
+          </View>
+        </View>
       </View>
 
       {/* Floating Bag and Create Trip Buttons */}
@@ -156,7 +174,7 @@ const ProfileScreen = () => {
             style={[
               styles.videoTile,
               getRandomShape(),
-              {backgroundColor: getRandomColor()},
+              {backgroundColor: 'black', borderColor: getRandomColor()},
             ]}
             onPress={() => openVideo(item)}>
             <Text style={styles.tripName}>{item.tripName}</Text>
@@ -195,7 +213,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#333',
+    backgroundColor: '#1B3232',
     padding: 20,
     alignItems: 'center',
   },
@@ -226,6 +244,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
   },
+  followSection: {
+    flexDirection: 'row',
+    justifyContent: 'center', // Center the texts horizontally
+    alignItems: 'center', // Align items vertically centered
+    width: '60%',
+    marginTop: 10,
+  },
+  followTextContainer: {
+    marginHorizontal: 20, // Adjust this value for desired space
+  },
+  followText: {
+    color: '#E7B171',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
   bagButton: {
     position: 'absolute',
     top: 60,
@@ -262,9 +296,10 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    borderWidth: 3, // Adjust the width as needed
   },
   tripName: {
-    color: '#fff',
+    color: '#FAD8B0',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',

@@ -7,6 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   Animated,
+  Modal,
+  Text,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import Video from 'react-native-video';
@@ -24,9 +26,8 @@ const {height} = Dimensions.get('window');
 
 // Reference local video files from the assets/videos folder
 const videos = [
-  {id: '1', uri: require('./assets/1.mp4')},
-  {id: '2', uri: require('./assets/2.mp4')},
-  {id: '3', uri: require('./assets/1.mp4')},
+  {id: '1', uri: require('./assets/cuts/8.mp4')},
+
   // Add more local video files as needed
 ];
 
@@ -35,6 +36,10 @@ const ReelsFeed = () => {
   const [paused, setPaused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0); // Track the currently active video index
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [source, setSource] = useState(''); // State for source input
+  const [destination, setDestination] = useState(''); // State for destination input
+
   const doubleTapRef = useRef(null);
   const longPressRef = useRef(null);
   const flatListRef = useRef<FlatList>(null);
@@ -82,13 +87,12 @@ const ReelsFeed = () => {
     }
   };
   const openMap = () => {
-    navigation.navigate('Map'); // Adjust based on your navigator setup
+    setModalVisible(true); // Show modal before navigating
   };
 
-  // Handle message button press
-  const handleMessagePress = () => {
-    console.log('Message button pressed!');
-    // Implement your messaging functionality here
+  const handleGetRoute = () => {
+    setModalVisible(false); // Hide modal
+    navigation.navigate('Map'); // Navigate to the map page
   };
 
   const openSearchPage = () => {
@@ -185,20 +189,7 @@ const ReelsFeed = () => {
 
       {paused && ( // Conditional rendering based on paused state
         <>
-          {/* Animated Message Button */}
-          <Animated.View
-            style={[
-              styles.messageButton,
-              {
-                opacity,
-                transform: [{translateY}],
-              },
-            ]}>
-            <TouchableOpacity onPress={handleMessagePress}>
-              <Icon name="envelope" size={24} color="white" />
-            </TouchableOpacity>
-          </Animated.View>
-          {/* Animated Profile button with an icon */}
+          {/* Animated Map button with an icon */}
           <Animated.View
             style={[
               styles.mapButton,
@@ -208,7 +199,7 @@ const ReelsFeed = () => {
               },
             ]}>
             <TouchableOpacity onPress={openMap}>
-              <Icon name="user" size={54} color="white" />
+              <Icon name="map" size={44} color="white" />
             </TouchableOpacity>
           </Animated.View>
 
@@ -248,6 +239,41 @@ const ReelsFeed = () => {
           </Animated.View>
         </>
       )}
+      {/* Modal for source and destination input */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Enter Source and Destination</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Source"
+              placeholderTextColor="gray"
+              value={source}
+              onChangeText={setSource}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Destination"
+              placeholderTextColor="gray"
+              value={destination}
+              onChangeText={setDestination}
+            />
+            <TouchableOpacity
+              onPress={handleGetRoute}
+              style={{
+                padding: 10,
+                backgroundColor: '#FAD8B0',
+                borderRadius: 5,
+              }}>
+              <Text style={{color: '#1B3232', fontSize: 16}}>Get Route</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -284,7 +310,7 @@ const styles = StyleSheet.create({
   },
   mapButton: {
     position: 'absolute',
-    bottom: 300, // Adjust this based on search bar position
+    bottom: 200, // Adjust this based on search bar position
     right: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)', // Transparent background
     padding: 10,
@@ -303,6 +329,34 @@ const styles = StyleSheet.create({
   searchInput: {
     color: 'white', // Text color inside the search bar
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#1B3232',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#E7B171',
+  },
+  modalInput: {
+    backgroundColor: '#415F5F',
+    width: '100%',
+    borderWidth: 3,
+    borderColor: '#E7B171',
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 10,
   },
 });
 

@@ -408,7 +408,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#FAD8B0" />
       </View>
     );
   }
@@ -423,7 +423,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Trip Details</Text>
+      <Text style={styles.title}>Upload Media</Text>
       <ScrollView>
         {tripDetails.destinations.map((destination, index) => (
           <View
@@ -456,12 +456,13 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
                   ))}
                 </ScrollView>
                 <View style={styles.uploadButton}>
-                  <Button
-                    title="Upload Media"
+                  <TouchableOpacity
+                    style={styles.button}
                     onPress={() =>
                       uploadToCloudinary(index, destination.destinationName)
-                    }
-                  />
+                    }>
+                    <Text style={styles.buttonText}>Upload Media</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
@@ -489,12 +490,13 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
                 />
               )}
               <View style={styles.uploadButton}>
-                <Button
-                  title="Upload Vlog"
+                <TouchableOpacity
+                  style={styles.button} // Add styles for the button here
                   onPress={() =>
                     uploadVlogOrCutsToCloudinary(vlogMedia, 'Vlog')
-                  }
-                />
+                  }>
+                  <Text style={styles.buttonText}>Upload Vlog</Text>
+                </TouchableOpacity>
               </View>
             </View>
           )}
@@ -521,19 +523,22 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
                 />
               )}
               <View style={styles.uploadButton}>
-                <Button
-                  title="Upload Cuts"
+                <TouchableOpacity
+                  style={styles.button} // Add custom styles here if needed
                   onPress={() =>
                     uploadVlogOrCutsToCloudinary(cutsMedia, 'Cuts')
-                  }
-                />
+                  }>
+                  <Text style={styles.buttonText}>Upload Cuts</Text>
+                </TouchableOpacity>
               </View>
             </View>
           )}
         </View>
 
-        <View style={styles.submitButton}>
-          <Button title="Finish" onPress={handleFinish} />
+        <View>
+          <TouchableOpacity style={styles.button} onPress={handleFinish}>
+            <Text style={styles.buttonText}>Finish</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -543,7 +548,11 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
           <View style={styles.modalContent}>
             <Text style={styles.modalQuestion}>{questions[popUpIndex]}</Text>
             <TextInput
-              style={styles.textInput}
+              style={
+                popUpIndex === 0 || popUpIndex === questions.length - 1
+                  ? styles.largeTextInput
+                  : styles.smallTextInput
+              }
               value={responses[popUpIndex]}
               onChangeText={text => {
                 const updatedResponses = [...responses];
@@ -555,6 +564,7 @@ const MediaUpload: React.FC<TripDetailScreenProps> = ({route}) => {
             <Button
               title={popUpIndex < questions.length - 1 ? 'Next' : 'Finsh'}
               onPress={handleNextQuestion}
+              color="#FAD8B0"
             />
           </View>
         </View>
@@ -567,27 +577,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#1B3232',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#E7B171',
+    paddingBottom: 50,
+    paddingTop: 5,
   },
   card: {
     padding: 20,
     marginVertical: 10,
     borderRadius: 10,
-    backgroundColor: '#fff',
+    backgroundColor: 'black',
     elevation: 3,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    color: '#FAD8B0',
   },
   destination: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#FAD8B0',
   },
   expandedContent: {
     paddingTop: 10,
@@ -601,9 +616,23 @@ const styles = StyleSheet.create({
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: '#1C1C1C',
     borderRadius: 10,
     marginRight: 10,
+  },
+  uploadButton: {
+    // Add any styles for the surrounding view if necessary
+  },
+  button: {
+    borderRadius: 5,
+    backgroundColor: '#FAD8B0', // Button background color
+    padding: 10,
+    alignItems: 'center', // Center text horizontally
+  },
+  buttonText: {
+    color: '#1B3232', // Text color
+    fontSize: 16, // Text size
+    fontWeight: 'bold',
   },
   plusSign: {
     fontSize: 30,
@@ -615,12 +644,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: 10,
   },
-  uploadButton: {
-    marginTop: 10,
-  },
   submitButton: {
     marginTop: 20,
-    backgroundColor: '#007BFF',
+    backgroundColor: '#FAD8B0',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -629,14 +655,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
   },
   modalContent: {
     width: '80%',
-    backgroundColor: '#fff',
+    backgroundColor: '#415F5F',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
+    borderWidth: 3, // Adjust thickness here
+    borderColor: '#E7B171', // Black color
   },
   modalQuestion: {
     fontSize: 18,
@@ -652,11 +680,33 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
   },
+  largeTextInput: {
+    width: 280,
+    height: 250,
+    padding: 10,
+    borderColor: '#FAD8B0',
+    borderWidth: 1,
+    marginVertical: 10,
+    color: 'white',
+  },
+  smallTextInput: {
+    width: 280,
+    height: 50,
+    padding: 10,
+    borderColor: '#FAD8B0',
+    borderWidth: 1,
+    marginVertical: 10,
+    color: 'white',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#1B3232', // Same color as ActivityIndicator
+  },
+  loadingText: {
+    color: '#FAD8B0',
+    marginTop: 10,
   },
 });
 

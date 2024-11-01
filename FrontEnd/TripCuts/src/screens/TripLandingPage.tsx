@@ -12,7 +12,7 @@ import {RouteProp} from '@react-navigation/native';
 import Reviews from './components/Reviews';
 import Itinerary from './components/Itinerary';
 import Destinations from './components/Destinations';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing Material Icons
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 
 type RootStackParamList = {
@@ -28,10 +28,10 @@ type VideoScreenProps = {
 const Tab = createBottomTabNavigator();
 
 const TripLandingPage: React.FC<VideoScreenProps> = ({route}) => {
-  const {tripId} = route.params; // Get tripId from route parameters
+  const {tripId} = route.params;
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [likes, setLikes] = useState<number>(0);
-  const [comments, setComments] = useState<string[]>([]); // Store comments
+  const [comments, setComments] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchVlog = async () => {
@@ -44,7 +44,7 @@ const TripLandingPage: React.FC<VideoScreenProps> = ({route}) => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              trip_id: tripId, // Pass tripId directly
+              trip_id: tripId,
             }),
           },
         );
@@ -57,7 +57,7 @@ const TripLandingPage: React.FC<VideoScreenProps> = ({route}) => {
         console.log(data);
 
         if (data.success) {
-          setVideoUrl(data.vlog.url); // Assuming data.vlog.url contains the video URL
+          setVideoUrl(data.vlog.url);
         } else {
           console.error('Error fetching vlog:', data.message);
         }
@@ -67,15 +67,13 @@ const TripLandingPage: React.FC<VideoScreenProps> = ({route}) => {
     };
 
     fetchVlog();
-  }, [tripId]); // Add tripId as a dependency
+  }, [tripId]);
 
   const handleLike = () => {
-    setLikes(likes + 1); // Increment likes
+    setLikes(likes + 1);
   };
 
   const handleComment = () => {
-    // You can implement a modal or input dialog here for adding comments
-    // For simplicity, I'm adding a hardcoded comment
     setComments([...comments, `Comment ${comments.length + 1}`]);
   };
 
@@ -95,24 +93,42 @@ const TripLandingPage: React.FC<VideoScreenProps> = ({route}) => {
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={styles.button} onPress={handleLike}>
-          <Icon name="thumb-up" size={24} color="#fff" />
+          <Icon name="thumb-up" size={24} color="#FAD8B0" />
           <Text style={styles.buttonText}> {likes}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleComment}>
-          <Icon name="comment" size={24} color="#fff" />
+          <Icon name="comment" size={24} color="#FAD8B0" />
           <Text style={styles.buttonText}> Comment</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.tabsContainer}>
-        <Tab.Navigator>
+        <Tab.Navigator
+          initialRouteName="Itinerary"
+          screenOptions={({route}) => ({
+            tabBarActiveTintColor: '#FAD8B0',
+            tabBarInactiveTintColor: 'black',
+            tabBarActiveBackgroundColor: '#3D9676', // Highlight the active tab
+            tabBarInactiveBackgroundColor: '#415F5F', // Inactive tab background
+            tabBarLabelStyle: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              textAlign: 'center', // Center the text horizontally
+              paddingVertical: 10, // Adjust padding to center text vertically
+            },
+            tabBarIcon: () => null, // Remove the icon and its space
+            tabBarStyle: {
+              height: 60, // Adjust height of the tab bar for better vertical centering
+            },
+            headerShown: false, // Removes the top bar (header)
+          })}>
           <Tab.Screen name="Reviews" component={Reviews} />
           <Tab.Screen
             name="Itinerary"
-            children={() => <Itinerary tripId={tripId} />} // Pass tripId as a prop
+            children={() => <Itinerary tripId={tripId} />}
           />
           <Tab.Screen
             name="Destinations"
-            children={() => <Destinations tripId={tripId} />} // Pass tripId as a prop
+            children={() => <Destinations tripId={tripId} />}
           />
         </Tab.Navigator>
       </View>
@@ -130,7 +146,7 @@ const TripLandingPage: React.FC<VideoScreenProps> = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#1B3232',
   },
   videoContainer: {
     height: Dimensions.get('window').height * 0.3,
@@ -148,23 +164,26 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007bff',
+    backgroundColor: '#3D9676',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FAD8B0',
     fontSize: 16,
-    marginLeft: 5, // Space between icon and text
+    marginLeft: 5,
   },
   tabsContainer: {
     flex: 1,
+    backgroundColor: '#1B3232',
   },
   commentsContainer: {
     padding: 10,
+    backgroundColor: '#1B3232',
   },
   commentText: {
     fontSize: 14,
+    color: '#FAD8B0',
     marginVertical: 2,
   },
 });

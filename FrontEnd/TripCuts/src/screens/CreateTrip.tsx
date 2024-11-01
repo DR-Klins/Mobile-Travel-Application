@@ -4,33 +4,33 @@ import {
   Text,
   TextInput,
   View,
-  Button,
-  ScrollView,
   TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
 import * as Yup from 'yup';
-import {Formik, FormikErrors, FormikTouched} from 'formik'; // Import Formik types
+import {Formik, FormikErrors, FormikTouched} from 'formik';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParamList} from '../App';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {useAuth} from './context/AuthContext';
 import axios from 'axios';
 
-// Define form values type
 interface Destination {
   destinationName: string;
   visited: boolean;
-  time: string | null; // New field for time
+  time: string | null;
 }
 
 interface FormValues {
   tripName: string;
   tripType: string;
   budget: number;
-  destinations: Destination[]; // Updated to include destination objects
+  destinations: Destination[];
 }
 
-// Validation schema
 const validationSchema = Yup.object().shape({
   tripName: Yup.string().required('Trip name is required'),
   tripType: Yup.string().required('Type of trip is required'),
@@ -43,7 +43,7 @@ const validationSchema = Yup.object().shape({
       Yup.object().shape({
         destinationName: Yup.string().required('Destination name is required'),
         visited: Yup.boolean(),
-        time: Yup.string().nullable(), // Validate time as a string, nullable
+        time: Yup.string().nullable(),
       }),
     )
     .min(2, 'Add at least one source and destination'),
@@ -54,8 +54,8 @@ const CreateTrip = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const {getUserID} = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [source, setSource] = useState<string>(''); // For adding source/destination
-  const [time, setTime] = useState<string | null>(null); // For the time input
+  const [source, setSource] = useState<string>('');
+  const [time, setTime] = useState<string | null>(null);
 
   const handleSearch = async (text: string) => {
     setQuery(text);
@@ -70,8 +70,8 @@ const CreateTrip = () => {
         const formattedSuggestions = response.data.features.map(
           (feature: {place_name: string}) => {
             const parts = feature.place_name.split(',');
-            const city = parts[0]; // Get the city name
-            const country = parts[parts.length - 1].trim(); // Get the country name
+            const city = parts[0];
+            const country = parts[parts.length - 1].trim();
             return `${city}, ${country}`;
           },
         );
@@ -86,7 +86,7 @@ const CreateTrip = () => {
 
   const handleSubmit = async (values: FormValues) => {
     const user_id = await getUserID();
-    console.log(values); // Log the final values
+    console.log(values);
 
     try {
       const response = await fetch(
@@ -109,259 +109,292 @@ const CreateTrip = () => {
       navigation.navigate('Bag');
     } catch (error) {
       console.error('Error:', error);
+      Alert.alert('Error', 'Failed to create trip. Please try again.');
     }
   };
 
   const handleSuggestionSelect = (suggestion: string) => {
     setSource(suggestion);
     setQuery(suggestion);
-    setSuggestions([]); // Clear suggestions after selecting
+    setSuggestions([]);
   };
 
   return (
-    <SafeAreaView style={styles.pageContainer}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Create Trip</Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.innerContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <Text style={styles.title}>Create Trip</Text>
 
-        <Formik
-          initialValues={
-            {
-              tripName: '',
-              tripType: '',
-              budget: 0,
-              destinations: [], // Updated to handle destination objects
-            } as FormValues
-          }
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}>
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-            setFieldTouched,
-          }) => (
-            <>
-              {/* Trip Name Input */}
-              <Text style={styles.label}>Trip Name:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ex. Summer Vacation"
-                value={values.tripName}
-                onBlur={handleBlur('tripName')}
-                onChangeText={handleChange('tripName')}
-              />
-              {touched.tripName && errors.tripName && (
-                <Text style={styles.errorText}>{errors.tripName}</Text>
-              )}
-
-              {/* Trip Type Input */}
-              <Text style={styles.label}>Type of Trip:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ex. Adventure"
-                value={values.tripType}
-                onBlur={handleBlur('tripType')}
-                onChangeText={handleChange('tripType')}
-              />
-              {touched.tripType && errors.tripType && (
-                <Text style={styles.errorText}>{errors.tripType}</Text>
-              )}
-
-              {/* Budget Input */}
-              <Text style={styles.label}>Budget:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ex. 10000"
-                value={values.budget.toString()}
-                keyboardType="numeric"
-                returnKeyType="done"
-                onBlur={handleBlur('budget')}
-                onChangeText={handleChange('budget')}
-              />
-              {touched.budget && errors.budget && (
-                <Text style={styles.errorText}>{errors.budget}</Text>
-              )}
-
-              {/* Source/Destination Input */}
-              <Text style={styles.label}>Destination:</Text>
-              <View style={styles.destinationContainer}>
+          <Formik
+            initialValues={
+              {
+                tripName: '',
+                tripType: '',
+                budget: 0,
+                destinations: [],
+              } as FormValues
+            }
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}>
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+              setFieldTouched,
+            }) => (
+              <>
+                <Text style={styles.label}>Trip Name:</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter destination"
-                  value={source}
-                  onChangeText={text => {
-                    setSource(text);
-                    handleSearch(text);
-                  }}
+                  placeholder="Ex. Summer Vacation"
+                  placeholderTextColor="#B0BEC5"
+                  value={values.tripName}
+                  onBlur={handleBlur('tripName')}
+                  onChangeText={handleChange('tripName')}
                 />
-              </View>
-              <View style={{width: '100%'}}>
-                <Button
-                  title="Add"
+                {touched.tripName && errors.tripName && (
+                  <Text style={styles.errorText}>{errors.tripName}</Text>
+                )}
+
+                <Text style={styles.label}>Type of Trip:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex. Adventure"
+                  placeholderTextColor="#B0BEC5"
+                  value={values.tripType}
+                  onBlur={handleBlur('tripType')}
+                  onChangeText={handleChange('tripType')}
+                />
+                {touched.tripType && errors.tripType && (
+                  <Text style={styles.errorText}>{errors.tripType}</Text>
+                )}
+
+                <Text style={styles.label}>Budget:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex. 10000"
+                  placeholderTextColor="#B0BEC5"
+                  value={values.budget.toString()}
+                  keyboardType="numeric"
+                  returnKeyType="done"
+                  onBlur={handleBlur('budget')}
+                  onChangeText={handleChange('budget')}
+                />
+                {touched.budget && errors.budget && (
+                  <Text style={styles.errorText}>{errors.budget}</Text>
+                )}
+
+                <Text style={styles.label}>Destination:</Text>
+                <View style={styles.destinationContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter destination"
+                    placeholderTextColor="#B0BEC5"
+                    value={source}
+                    onChangeText={text => {
+                      setSource(text);
+                      handleSearch(text);
+                    }}
+                  />
+                  {suggestions.length > 0 && (
+                    <View style={styles.suggestionContainer}>
+                      {suggestions.map((suggestion, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => handleSuggestionSelect(suggestion)}>
+                          <Text style={styles.suggestionText}>
+                            {suggestion}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+                <TouchableOpacity
+                  style={styles.addButton}
                   onPress={() => {
                     if (source.trim()) {
-                      // Push a new destination object
                       values.destinations.push({
                         destinationName: source,
                         visited: false,
-                        time: time || null, // Use null if time is not provided
+                        time: time || null,
                       });
-                      setSource(''); // Clear the input
-                      setTime(null); // Reset the time input
+                      setSource('');
+                      setTime(null);
                     }
-                  }}
-                />
-              </View>
+                  }}>
+                  <Text style={styles.addButtonText}>Add Destination</Text>
+                </TouchableOpacity>
 
-              {/* Suggestion Box */}
-              {suggestions.length > 0 && (
-                <View style={styles.suggestionContainer}>
-                  {suggestions.map((suggestion, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleSuggestionSelect(suggestion)}>
-                      <Text style={styles.suggestionText}>{suggestion}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+                {values.destinations.map((dest, index) => (
+                  <View key={index} style={styles.card}>
+                    <Text style={styles.cardText}>
+                      {index === 0 ? 'Source' : `Destination ${index}`} :{' '}
+                      {dest.destinationName}
+                      {dest.time && ` (Time: ${dest.time})`}
+                    </Text>
+                    {touched.destinations &&
+                      errors.destinations &&
+                      Array.isArray(errors.destinations) &&
+                      errors.destinations[index] && (
+                        <Text style={styles.errorText}>
+                          {
+                            (
+                              errors.destinations[
+                                index
+                              ] as FormikErrors<Destination>
+                            ).destinationName
+                          }
+                        </Text>
+                      )}
+                  </View>
+                ))}
 
-              {/* Display Added Destinations */}
-              {values.destinations.map((dest, index) => (
-                <View key={index} style={styles.card}>
-                  <Text style={styles.cardText}>
-                    {index === 0 ? 'Source' : `Destination ${index}`} :{' '}
-                    {dest.destinationName}
-                    {dest.time && ` (Time: ${dest.time})`}
+                {touched.destinations && Array.isArray(errors.destinations) && (
+                  <Text style={styles.errorText}>
+                    {errors.destinations.join(', ')}
                   </Text>
-                  {/* Show individual error for this destination */}
-                  {touched.destinations &&
-                    errors.destinations &&
-                    Array.isArray(errors.destinations) &&
-                    errors.destinations[index] && (
-                      <Text style={styles.errorText}>
-                        {
-                          (
-                            errors.destinations[
-                              index
-                            ] as FormikErrors<Destination>
-                          ).destinationName
-                        }
-                      </Text>
-                    )}
-                </View>
-              ))}
+                )}
 
-              {/* Show error for destinations if touched */}
-              {touched.destinations && Array.isArray(errors.destinations) && (
-                <Text style={styles.errorText}>
-                  {errors.destinations.join(', ')}
-                </Text>
-              )}
-
-              {/* Submit Button */}
-              <View style={styles.formActions}>
                 <TouchableOpacity
                   style={styles.createButton}
                   onPress={() => {
                     handleSubmit();
                     if (values.destinations.length < 2) {
-                      // Ensure Formik touches the destinations field to show error
                       values.destinations.forEach((_, index) =>
-                        setFieldTouched(`destinations[${index}]`, true),
+                        setFieldTouched(
+                          `destinations.${index}.destinationName`,
+                        ),
                       );
                     }
                   }}>
                   <Text style={styles.createButtonText}>Create Trip</Text>
                 </TouchableOpacity>
-              </View>
-            </>
-          )}
-        </Formik>
-      </ScrollView>
+              </>
+            )}
+          </Formik>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
   container: {
+    flex: 1,
+    backgroundColor: '#1B3232',
     padding: 20,
-    alignItems: 'center',
+  },
+  innerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  scrollContainer: {
+    paddingBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#FAD8B0',
     marginBottom: 20,
+    textAlign: 'left',
   },
   label: {
-    marginBottom: 5,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#FAD8B0',
+    marginBottom: 5,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 15,
     width: '100%',
+    borderColor: '#FAD8B0',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: '#415F5F',
+    marginBottom: 10,
+    height: 50,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
-  errorText: {
-    fontSize: 12,
-    color: '#ff0d10',
-  },
-  destinationContainer: {
-    flexDirection: 'row',
+  addButton: {
+    backgroundColor: '#3D9676',
+    padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15,
+    marginVertical: 10,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   suggestionContainer: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    borderColor: '#ccc',
+    borderColor: '#3D9676',
     borderWidth: 1,
-    borderRadius: 5,
-    zIndex: 1000,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
     marginTop: 5,
     width: '100%',
+    position: 'absolute',
+    zIndex: 1,
+    elevation: 3,
   },
   suggestionText: {
     padding: 10,
-    fontSize: 16,
+    color: '#415F5F',
   },
   card: {
-    backgroundColor: '#e0e0e0',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#1B3232',
+    padding: 15,
+    borderRadius: 10,
     marginVertical: 5,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
   cardText: {
+    color: '#FAD8B0',
     fontSize: 16,
   },
-  formActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
+  errorText: {
+    color: 'red',
+    fontSize: 14,
   },
   createButton: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    borderRadius: 50,
+    backgroundColor: '#3D9676',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
   createButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 16,
+  },
+  destinationContainer: {
+    width: '100%',
+    marginBottom: 10,
   },
 });
 

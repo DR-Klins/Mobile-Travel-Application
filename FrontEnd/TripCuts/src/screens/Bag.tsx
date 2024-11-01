@@ -23,12 +23,12 @@ const CompletedTrips = () => (
 const TripsTabScreen = () => {
   return (
     <Tab.Navigator
-      initialRouteName="UpcomingTrips"
+      initialRouteName="CreatedTrips"
       screenOptions={({route}) => ({
-        tabBarActiveTintColor: 'white',
+        tabBarActiveTintColor: '#FAD8B0',
         tabBarInactiveTintColor: 'black',
-        tabBarActiveBackgroundColor: '#FAD8B0', // Highlight the active tab
-        tabBarInactiveBackgroundColor: '#FAD8B0', // Inactive tab background
+        tabBarActiveBackgroundColor: '#3D9676', // Highlight the active tab
+        tabBarInactiveBackgroundColor: '#415F5F', // Inactive tab background
         tabBarLabelStyle: {
           fontSize: 14,
           fontWeight: 'bold',

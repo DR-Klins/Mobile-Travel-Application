@@ -176,13 +176,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF', // White text for contrast
+    color: '#E7B171', // White text for contrast
     marginBottom: 20,
     textAlign: 'center',
   },
   heading: {
     fontSize: 16,
-    color: '#FFFFFF', // White text for contrast
+    color: '#E7B171', // White text for contrast
   },
   inputWrapper: {
     marginBottom: 20,
@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 2,
     borderRadius: 10,
-    borderColor: '#5DA3FA',
-    backgroundColor: '#F1F6F9', // Light background for input
+    borderColor: '#1B3232',
+    backgroundColor: '#415F5F', // Light background for input
     fontSize: 16,
   },
   errorText: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     width: '48%',
     padding: 15,
     borderRadius: 10,
-    backgroundColor: '#5DA3FA',
+    backgroundColor: '#1B3232',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -220,14 +220,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   primaryBtnTxt: {
-    color: '#fff',
+    color: '#E7B171',
     fontWeight: 'bold',
   },
   secondaryBtn: {
     width: '48%',
     padding: 15,
     borderRadius: 10,
-    backgroundColor: '#CAD5E2',
+    backgroundColor: '#FAD8B0',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
