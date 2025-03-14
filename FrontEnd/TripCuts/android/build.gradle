@@ -31,7 +31,7 @@ allprojects {
             }
             credentials {
                 username = 'mapbox'
-                password = "sk.eyJ1Ijoia2xpbnNtYW5uIiwiYSI6ImNtMjlwdHlmMjA4NXkybXNmYjJ2dDd0cTgifQ.XF4U81v8TMFZNMKCZWCLgA"
+                password = "sk.eyJ1Ijoia2xpbnNtYW5uIiwiYSI6ImNtMjlwdHlmMjA4NXkybXNmYjJ2dDd0cTgifQ.XF4U81v8TMFZNMKCZWCLgA" #code Revoked
             }
         }
     }
